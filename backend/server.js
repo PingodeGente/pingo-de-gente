@@ -1,0 +1,288 @@
+require('dotenv').config();
+
+const express = require('express');
+const cors = require('cors');
+const pool = require('./db');
+const authRoutes = require('./routes/auth.routes');
+
+const app = express();
+const port = 3000;
+
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+app.use('/api/auth', authRoutes);
+
+app.get('/', (req, res) => {
+  res.send('Servidor Pingo de Gente está funcionando.');
+});
+
+app.get('/api/health', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        current_database() AS database,
+        NOW() AS server_time
+    `);
+
+    res.json({
+      ok: true,
+      message: 'API conectada ao Neon com sucesso.',
+      database: result.rows[0].database,
+      serverTime: result.rows[0].server_time
+    });
+  } catch (error) {
+    console.error('Erro ao conectar ao Neon:', error.message);
+
+    res.status(500).json({
+      ok: false,
+      message: 'Não foi possível conectar ao Neon.'
+    });
+  }
+});
+app.get('/api/produtos', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT *
+ FROM products
+ WHERE ativo = true
+ ORDER BY criado_em DESC`
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Erro ao listar produtos:', error.message);
+
+    res.status(500).json({
+      erro: 'Erro ao listar produtos.'
+    });
+  }
+});
+
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+const pastaUploads = path.join(__dirname, 'uploads');
+
+if (!fs.existsSync(pastaUploads)) {
+  fs.mkdirSync(pastaUploads);
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, pastaUploads),
+  filename: (req, file, cb) => {
+    const nome = Date.now() + '-' + file.originalname.replace(/\s+/g, '-');
+    cb(null, nome);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Envie apenas imagens.'));
+    }
+  }
+});
+const jwt = require('jsonwebtoken');
+
+function verificarAdmin(req, res, next) {
+  const header = req.headers.authorization || '';
+  const token = header.replace('Bearer ', '').trim();
+
+  if (!token) {
+    return res.status(401).json({
+      erro: 'Token não informado.'
+    });
+  }
+
+  let payload;
+
+  try {
+    payload = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (e) {
+    return res.status(401).json({
+      erro: 'Token inválido ou expirado.'
+    });
+  }
+
+  if (!['admin', 'lojista'].includes(payload.role)) {
+    return res.status(403).json({
+      erro: 'Acesso restrito a administradores e lojistas.'
+    });
+  }
+
+  req.usuario = payload;
+  next();
+}
+app.use('/uploads', express.static(pastaUploads));
+
+app.post('/api/produtos', verificarAdmin, async (req, res) => {
+  try {
+    const {
+      nome,
+      codigo,
+      categoria,
+      precoReal,
+      precoPromocional,
+      estoque,
+      fotoUrl
+    } = req.body;
+
+    if (!nome || !codigo || !categoria) {
+      return res.status(400).json({
+        erro: 'Nome, código e categoria são obrigatórios.'
+      });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO products
+        (nome, codigo, categoria, preco_real, preco_promocional, estoque, foto_url, ativo)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, true)
+       RETURNING *`,
+      [
+        nome,
+        codigo,
+        categoria,
+        precoReal,
+        precoPromocional,
+        estoque,
+        fotoUrl || null
+      ]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Erro ao cadastrar produto:', error.message);
+
+    if (error.code === '23505') {
+      return res.status(409).json({
+        erro: 'Já existe um produto com este código.'
+      });
+    }
+
+    res.status(500).json({
+      erro: 'Erro ao cadastrar produto.'
+    });
+  }
+});
+
+app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
+  try {
+    const {
+      nome,
+      codigo,
+      categoria,
+      precoReal,
+      precoPromocional,
+      estoque,
+      fotoUrl
+    } = req.body;
+
+    if (!nome || !codigo || !categoria) {
+      return res.status(400).json({
+        erro: 'Nome, código e categoria são obrigatórios.'
+      });
+    }
+
+    const result = await pool.query(
+      `UPDATE products
+       SET nome = $1,
+           codigo = $2,
+           categoria = $3,
+           preco_real = $4,
+           preco_promocional = $5,
+           estoque = $6,
+           foto_url = COALESCE($7, foto_url),
+           ativo = true
+       WHERE id = $8
+       RETURNING *`,
+      [
+        nome,
+        codigo,
+        categoria,
+        precoReal,
+        precoPromocional,
+        estoque,
+        fotoUrl,
+        req.params.id
+      ]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        erro: 'Produto não encontrado.'
+      });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Erro ao atualizar produto:', error.message);
+
+    if (error.code === '23505') {
+      return res.status(409).json({
+        erro: 'Já existe outro produto com este código.'
+      });
+    }
+
+    res.status(500).json({
+      erro: 'Erro ao atualizar produto.'
+    });
+  }
+});
+app.patch('/api/produtos/:id/publicar', verificarAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `UPDATE products
+       SET ativo = true
+       WHERE id = $1
+       RETURNING *`,
+      [req.params.id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        erro: 'Produto não encontrado.'
+      });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Erro ao publicar produto:', error.message);
+
+    res.status(500).json({
+      erro: 'Erro ao publicar produto.'
+    });
+  }
+});
+
+app.delete('/api/produtos/:id', verificarAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'DELETE FROM products WHERE id = $1',
+      [req.params.id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        erro: 'Produto não encontrado.'
+      });
+    }
+
+    res.json({ sucesso: true });
+  } catch (error) {
+    console.error('Erro ao excluir produto:', error.message);
+
+    res.status(500).json({
+      erro: 'Erro ao excluir produto.'
+    });
+  }
+});
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Servidor iniciado na porta ${PORT}`);
+});

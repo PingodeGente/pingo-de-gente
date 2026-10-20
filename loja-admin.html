@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciamento da Loja - Pingo de Gente</title>
+  <style>
+
+    * {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f2f5;
+  margin: 0;
+  padding: 16px;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+h1 {
+  color: #1a3a5c;
+  font-size: 22px;
+  margin: 12px 0;
+}
+
+h2 {
+  color: #1a3a5c;
+  font-size: 18px;
+  margin: 0 0 14px;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #555;
+  font-size: 14px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+button {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #00a8e8;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+button.secondary {
+  background: white;
+  color: #00a8e8;
+  border: 2px solid #00a8e8;
+}
+
+#fotoGaleria {
+  padding: 10px;
+  background: #f8fafc;
+}
+
+#imagemPreview {
+  border: 2px solid #e5e7eb;
+  max-width: 100%;
+  height: auto;
+}
+
+.produtos {
+  display: grid;
+  gap: 12px;
+}
+
+.produto {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.produto img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.acoes button {
+  margin-left: 0;
+}
+
+.excluir {
+  background: #ef5350;
+}
+
+#telaSenha {
+  max-width: 420px;
+  margin: 40px auto;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  h2 {
+    font-size: 17px;
+  }
+
+  .card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  input,
+  select,
+  button {
+    font-size: 16px;
+  }
+
+  .produto {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .acoes {
+    width: 100%;
+  }
+
+  .acoes button {
+    flex: 1;
+  }
+}
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #1a3a5c;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #555;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      background: #00a8e8;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: white;
+      color: #00a8e8;
+      border: 2px solid #00a8e8;
+    }
+#fotoGaleria {
+  padding: 10px;
+  background: #f8fafc;
+}
+
+#imagemPreview {
+  border: 2px solid #e5e7eb;
+}
+    .produtos {
+      display: grid;
+      gap: 12px;
+    }
+
+    .produto {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .acoes button {
+      margin-left: 8px;
+    }
+
+    .excluir {
+      background: #ef5350;
+    }
+  </style>
+</head>
+
+<body>
+ <div id="telaSenha">
+  <h2 style="color:#1a3a5c;">Área da Loja</h2>
+<p style="color:#555;">Confirme seu acesso à área da loja.</p>
+
+ <input id="senhaAdmin" type="password" placeholder="Senha da sua conta"
+         style="width:100%;padding:12px;margin:14px 0;border:2px solid #e0e0e0;border-radius:10px;box-sizing:border-box;">
+
+<button onclick="entrarAdmin()" style="width:100%;">Entrar</button>
+
+<button type="button" class="secondary" onclick="cancelarAcessoAdmin()"
+        style="width:100%;margin-top:10px;">
+  Cancelar
+</button>
+
+  <p id="erroSenha" style="color:#ef5350;display:none;margin-top:10px;">
+    Senha incorreta.
+  </p>
+</div>
+
+<div class="container" id="areaAdmin" style="display:none;"> 
+  <div class="container">
+    <h1>Gerenciamento da Loja</h1>
+
+    <div class="card">
+      <h2>Cadastrar produto</h2>
+
+      <label for="nome">Nome do produto</label>
+      <input id="nome" type="text" placeholder="Ex.: Vestido Floral">
+
+     <label for="codigo">Código do produto</label>
+<input id="codigo" type="text" readonly placeholder="Gerado automaticamente">
+
+<label for="categoria">Categoria</label>
+<select id="categoria">
+  <option value="masc">Masculino</option>
+  <option value="fem">Feminino</option>
+  <option value="uni">Unissex</option>
+</select>
+
+<label for="precoReal">Preço real (R$)</label>
+<input id="precoReal" type="number" step="0.01" min="0" placeholder="119.90">
+
+<label for="precoPromocional">Preço promocional (R$)</label>
+<input id="precoPromocional" type="number" step="0.01" min="0" placeholder="79.90">
+
+<label for="estoque">Estoque</label>
+<input id="estoque" type="number" min="0" value="1">
+
+<label for="fotoGaleria">Foto do produto</label>
+<input id="fotoGaleria" type="file" accept="image/*" onchange="selecionarFoto(event)">
+
+<button type="button" class="secondary" onclick="abrirCamera()">
+  Tirar foto com a câmera
+</button>
+<div id="previewFoto" style="margin: 14px 0;">
+  <img id="imagemPreview" src="" alt="Prévia da foto"
+       style="display:none; max-width: 100%; max-height: 260px; border-radius: 12px;">
+
+  <button type="button" class="secondary" id="botaoRemoverFoto"
+          onclick="removerFoto()"
+          style="display:none;">
+    Remover foto
+  </button>
+</div>
+<button id="botaoCadastrar" onclick="salvarProduto()">Cadastrar</button>
+     
+      <button class="secondary" onclick="window.location.href='index.html'">
+        Voltar ao catálogo
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>Produtos cadastrados</h2>
+      <div id="listaProdutos">
+        Carregando...
+      </div>
+    </div>
+  </div>
+
+  <script>
+  let produtos = [];
+const API_URL = 'http://127.0.0.1:3000';
+let fotoProduto = null;
+let contadorCodigo = 1;
+
+function gerarCodigo(categoria) {
+  const prefixo = {
+    masc: 'PDG-M',
+    fem: 'PDG-F',
+    uni: 'PDG-U'
+  }[categoria];
+
+  const numero = String(contadorCodigo).padStart(4, '0');
+
+  return `${prefixo}${numero}`;
+}
+
+function selecionarFoto(evento) {
+  const arquivo = evento.target.files[0];
+
+  if (!arquivo) {
+    return;
+  }
+
+  if (!arquivo.type.startsWith('image/')) {
+    alert('Selecione um arquivo de imagem.');
+    return;
+  }
+
+  const leitor = new FileReader();
+
+  leitor.onload = function (eventoLeitura) {
+    const imagem = new Image();
+
+    imagem.onload = function () {
+      const larguraMaxima = 800;
+      const alturaMaxima = 800;
+
+      let largura = imagem.width;
+      let altura = imagem.height;
+
+      if (largura > larguraMaxima || altura > alturaMaxima) {
+        const proporcao = Math.min(
+          larguraMaxima / largura,
+          alturaMaxima / altura
+        );
+
+        largura = Math.round(largura * proporcao);
+        altura = Math.round(altura * proporcao);
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = largura;
+      canvas.height = altura;
+
+      const contexto = canvas.getContext('2d');
+      contexto.drawImage(imagem, 0, 0, largura, altura);
+
+      fotoProduto = canvas.toDataURL('image/jpeg', 0.7);
+
+      const preview = document.getElementById('imagemPreview');
+      preview.src = fotoProduto;
+      preview.style.display = 'block';
+
+      document.getElementById('botaoRemoverFoto').style.display = 'inline-block';
+    };
+
+    imagem.src = eventoLeitura.target.result;
+  };
+
+  leitor.readAsDataURL(arquivo);
+}
+function removerFoto() {
+  fotoProduto = null;
+
+  const preview = document.getElementById('imagemPreview');
+  preview.src = '';
+  preview.style.display = 'none';
+
+  document.getElementById('botaoRemoverFoto').style.display = 'none';
+  document.getElementById('fotoGaleria').value = '';
+}
+
+function abrirCamera() {
+  const campoCamera = document.createElement('input');
+  campoCamera.type = 'file';
+  campoCamera.accept = 'image/*';
+  campoCamera.capture = 'environment';
+
+  campoCamera.onchange = function (evento) {
+    selecionarFoto(evento);
+  };
+
+  campoCamera.click();
+}
+
+function atualizarCodigo() {
+  const categoria = document.getElementById('categoria').value;
+  document.getElementById('codigo').value = gerarCodigo(categoria);
+}
+
+async function salvarProduto() {
+  const nome = document.getElementById('nome').value.trim();
+  const categoria = document.getElementById('categoria').value;
+  const codigo = document.getElementById('codigo').value.trim();
+  const precoReal = Number(document.getElementById('precoReal').value);
+  const precoPromocional = Number(document.getElementById('precoPromocional').value);
+  const estoque = Number(document.getElementById('estoque').value);
+
+  if (!nome || !codigo || precoReal <= 0 || precoPromocional <= 0 || estoque < 0) {
+    alert('Preencha nome, código, preços e estoque corretamente.');
+    return;
+  }
+
+  if (precoPromocional > precoReal) {
+    alert('O preço promocional não pode ser maior que o preço real.');
+    return;
+  }
+const dados = {
+    nome,
+    codigo,
+    categoria,
+    precoReal,
+    precoPromocional,
+    estoque,
+    fotoUrl: fotoProduto,
+    ativo: true
+};
+
+const token = localStorage.getItem('token');
+
+const botao = document.getElementById('botaoCadastrar');
+const textoOriginal = botao.textContent;
+
+  try {
+    botao.disabled = true;
+    botao.textContent = produtoEmEdicao
+      ? 'Salvando alterações...'
+      : 'Cadastrando...';
+
+    const url = produtoEmEdicao
+      ? `${API_URL}/api/produtos/${produtoEmEdicao}`
+      : `${API_URL}/api/produtos`;
+
+    const resposta = await fetch(url, {
+  method: produtoEmEdicao ? 'PUT' : 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify(dados)
+});
+    const resultado = await resposta.json();
+
+    if (!resposta.ok) {
+      alert(resultado.erro || 'Não foi possível salvar o produto.');
+      return;
+    }
+
+    alert(produtoEmEdicao
+      ? 'Produto atualizado com sucesso.'
+      : 'Produto cadastrado com sucesso.');
+
+    produtoEmEdicao = null;
+    fotoProduto = null;
+
+    document.getElementById('imagemPreview').src = '';
+    document.getElementById('imagemPreview').style.display = 'none';
+    document.getElementById('botaoRemoverFoto').style.display = 'none';
+    document.getElementById('fotoGaleria').value = '';
+
+    cancelarEdicao();
+    carregarProdutos();
+  } catch (erro) {
+    console.error('Erro ao salvar produto:', erro);
+    alert('Não foi possível conectar ao backend.');
+  } finally {
+    botao.disabled = false;
+    botao.textContent = textoOriginal;
+  }
+}
+
+async function removerProduto(id) {
+  if (!confirm('Deseja realmente excluir este produto?')) {
+    return;
+  }
+
+  try {
+    const resposta = await fetch(`${API_URL}/api/produtos/${id}`, {
+      method: 'DELETE'
+    });
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      alert(dados.erro || 'Erro ao excluir produto.');
+      return;
+    }
+
+    produtos = produtos.filter(produto => produto.id !== id);
+    renderizarProdutos();
+  } catch (error) {
+    console.error(error);
+    alert('Não foi possível excluir o produto.');
+  }
+}
+
+function renderizarProdutos() {
+  const lista = document.getElementById('listaProdutos');
+
+  if (produtos.length === 0) {
+    lista.innerHTML = '<p>Nenhum produto cadastrado ainda.</p>';
+    return;
+  }
+
+  lista.innerHTML = produtos.map(produto => `
+    <div class="produto">
+      <div style="display:flex; gap:12px; align-items:center;">
+        <img src="${produto.foto_url || ''}"
+             alt="Foto de ${produto.nome}"
+             style="width:64px; height:64px; object-fit:cover; border-radius:10px;
+                    display:${produto.foto_url ? 'block' : 'none'};">
+
+        <div>
+          <strong>${produto.nome}</strong><br>
+
+          <small>
+            ${produto.codigo} —
+            <s>R$ ${Number(produto.preco_real).toFixed(2)}</s>
+            <strong style="color:#00a651;">
+              R$ ${Number(produto.preco_promocional).toFixed(2)}
+            </strong>
+            — Estoque: ${produto.estoque}
+          </small>
+
+          <div style="font-size:12px; color:#555; margin-top:4px;">
+            Categoria:
+            ${produto.categoria === 'masc' ? 'Masculino' : produto.categoria === 'fem' ? 'Feminino' : 'Unissex'}
+          </div>
+        </div>
+      </div>
+
+      <div class="acoes">
+        <button class="secondary" onclick="editarProduto('${produto.id}')">
+    Editar
+  </button>
+
+        <button class="excluir" onclick="removerProduto('${produto.id}')">
+          Excluir
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+let produtoEmEdicao = null;
+
+
+function editarProduto(id) {
+  const produto = produtos.find(item => item.id === id);
+
+  if (!produto) {
+    alert('Produto não encontrado.');
+    return;
+  }
+
+  produtoEmEdicao = id;
+
+  document.getElementById('nome').value = produto.nome;
+  document.getElementById('codigo').value = produto.codigo;
+  document.getElementById('categoria').value = produto.categoria;
+  document.getElementById('precoReal').value = Number(produto.preco_real);
+  document.getElementById('precoPromocional').value = Number(produto.preco_promocional);
+  document.getElementById('estoque').value = produto.estoque;
+
+  fotoProduto = produto.foto_url || null;
+
+  const preview = document.getElementById('imagemPreview');
+
+  if (fotoProduto) {
+  preview.src = fotoProduto;
+  preview.style.display = 'block';
+  document.getElementById('botaoRemoverFoto').style.display = 'inline';
+} else {
+  preview.src = '';
+  preview.style.display = 'none';
+  document.getElementById('botaoRemoverFoto').style.display = 'none';
+}
+
+  document.getElementById('botaoCadastrar').textContent = 'Salvar alterações';
+}
+
+function cancelarEdicao() {
+  produtoEmEdicao = null;
+
+  document.getElementById('nome').value = '';
+  document.getElementById('precoReal').value = '';
+  document.getElementById('precoPromocional').value = '';
+  document.getElementById('estoque').value = 1;
+  document.getElementById('botaoRemoverFoto').style.display = 'none';
+
+  fotoProduto = null;
+
+  const preview = document.getElementById('imagemPreview');
+  preview.src = '';
+  preview.style.display = 'none';
+
+  document.getElementById('fotoGaleria').value = '';
+
+  atualizarCodigo();
+  document.getElementById('botaoCadastrar').textContent = 'Cadastrar';
+}
+async function carregarProdutos() {
+  try {
+    const resposta = await fetch(`${API_URL}/api/produtos`);
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(dados.erro || 'Erro ao carregar produtos.');
+    }
+
+    produtos = dados;
+    renderizarProdutos();
+  } catch (error) {
+    console.error(error);
+    document.getElementById('listaProdutos').innerHTML =
+      '<p>Não foi possível carregar os produtos.</p>';
+  }
+}
+
+document.getElementById('categoria').addEventListener('change', atualizarCodigo);
+
+atualizarCodigo();
+carregarProdutos();
+  </script>
+<script>
+ function entrarAdmin() {
+  const token = localStorage.getItem('token');
+
+  if (!token) {
+    document.getElementById('erroSenha').textContent =
+      'Faça login antes de acessar a área da loja.';
+    document.getElementById('erroSenha').style.display = 'block';
+    return;
+  }
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+
+    if (!['admin', 'lojista'].includes(payload.role)) {
+      document.getElementById('erroSenha').textContent =
+        'Acesso restrito a administradores e lojistas.';
+      document.getElementById('erroSenha').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('telaSenha').style.display = 'none';
+    document.getElementById('areaAdmin').style.display = 'block';
+  } catch (e) {
+    document.getElementById('erroSenha').textContent =
+      'Sessão inválida. Faça login novamente.';
+    document.getElementById('erroSenha').style.display = 'block';
+  }
+}
+function cancelarAcessoAdmin() {
+  document.getElementById('senhaAdmin').value = '';
+  document.getElementById('erroSenha').style.display = 'none';
+  window.location.href = 'index.html';
+}
+</script>
+</body>
+
+</html>
