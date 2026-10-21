@@ -671,35 +671,74 @@ atualizarCodigo();
 carregarProdutos();
   </script>
 <script>
- function entrarAdmin() {
+
+ async function entrarAdmin() {
+  const senha = document.getElementById('senhaAdmin').value;
+  const erro = document.getElementById('erroSenha');
+
+  erro.style.display = 'none';
+
   const token = localStorage.getItem('token');
 
   if (!token) {
-    document.getElementById('erroSenha').textContent =
-      'Faça login antes de acessar a área da loja.';
-    document.getElementById('erroSenha').style.display = 'block';
+    erro.textContent = 'Faça login antes de acessar a área da loja.';
+    erro.style.display = 'block';
+    return;
+  }
+
+  if (!senha) {
+    erro.textContent = 'Digite sua senha.';
+    erro.style.display = 'block';
+    return;
+  }
+
+  let email;
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    email = payload.email;
+  } catch (e) {
+    erro.textContent = 'Sessão inválida. Faça login novamente.';
+    erro.style.display = 'block';
+    return;
+  }
+
+  if (!email) {
+    erro.textContent = 'Não foi possível identificar sua conta. Faça login novamente.';
+    erro.style.display = 'block';
     return;
   }
 
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const resposta = await fetch('https://pingo-de-gente.onrender.com/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, senha })
+    });
 
-    if (!['admin', 'lojista'].includes(payload.role)) {
-      document.getElementById('erroSenha').textContent =
-        'Acesso restrito a administradores e lojistas.';
-      document.getElementById('erroSenha').style.display = 'block';
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      erro.textContent = dados.message || 'Senha incorreta.';
+      erro.style.display = 'block';
       return;
     }
+
+    if (!['admin', 'lojista'].includes(dados.user.role)) {
+      erro.textContent = 'Acesso restrito a administradores e lojistas.';
+      erro.style.display = 'block';
+      return;
+    }
+
+    localStorage.setItem('token', dados.token);
 
     document.getElementById('telaSenha').style.display = 'none';
     document.getElementById('areaAdmin').style.display = 'block';
   } catch (e) {
-    document.getElementById('erroSenha').textContent =
-      'Sessão inválida. Faça login novamente.';
-    document.getElementById('erroSenha').style.display = 'block';
+    erro.textContent = 'Não foi possível conectar ao servidor.';
+    erro.style.display = 'block';
   }
-}
-function cancelarAcessoAdmin() {
+}function cancelarAcessoAdmin() {
   document.getElementById('senhaAdmin').value = '';
   document.getElementById('erroSenha').style.display = 'none';
   window.location.href = 'index.html';
