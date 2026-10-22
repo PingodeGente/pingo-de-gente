@@ -2099,7 +2099,30 @@
                         <button class="painel-action-btn secondary" id="btnReport" disabled>
                             📄 Gerar Relatório (em desenvolvimento)
                         </button>
+                        <button class="painel-action-btn" onclick="showUsuariosSection()">
+                             👥 Gerenciar Usuários
+                        </button>
                 </div>
+                <section id="usuariosSection" class="painel-section" style="display:none;">
+    <h3>👥 Gerenciamento de Usuários</h3>
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Perfil atual</th>
+                <th>Alterar perfil</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody id="usuariosTableBody">
+            <tr>
+                <td colspan="5">Carregando usuários...</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
             </div>
         </div>
 
@@ -4107,6 +4130,106 @@ UI.renderProfile();
     document.addEventListener('DOMContentLoaded', () => {
         App.init();
     });
+</script>
+<script>
+function getToken() {
+  return sessionStorage.getItem('authToken') ||
+         localStorage.getItem('authToken') ||
+         sessionStorage.getItem('token') ||
+         localStorage.getItem('token');
+}
+
+function showUsuariosSection() {
+  const section = document.getElementById('usuariosSection');
+
+  if (section.style.display === 'none') {
+    section.style.display = 'block';
+    carregarUsuarios();
+  } else {
+    section.style.display = 'none';
+  }
+}
+
+async function carregarUsuarios() {
+  const tbody = document.getElementById('usuariosTableBody');
+  const token = getToken();
+
+  tbody.innerHTML = '<tr><td colspan="5">Carregando usuários...</td></tr>';
+
+  try {
+    const resposta = await fetch('https://pingo-de-gente.onrender.com/api/auth/users', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok || !dados.ok) {
+      tbody.innerHTML = `<tr><td colspan="5">${dados.message || 'Erro ao carregar usuários.'}</td></tr>`;
+      return;
+    }
+
+    if (!dados.users.length) {
+      tbody.innerHTML = '<tr><td colspan="5">Nenhum usuário cadastrado.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = dados.users.map(usuario => `
+      <tr>
+        <td>${usuario.nome}</td>
+        <td>${usuario.email}</td>
+        <td>${usuario.role}</td>
+        <td>
+          <select id="perfil-${usuario.id}">
+            <option value="cliente" ${usuario.role === 'cliente' ? 'selected' : ''}>Cliente</option>
+            <option value="lojista" ${usuario.role === 'lojista' ? 'selected' : ''}>Lojista</option>
+            <option value="admin" ${usuario.role === 'admin' ? 'selected' : ''}>Administrador</option>
+          </select>
+        </td>
+        <td>
+          <button onclick="salvarPerfil(${usuario.id})">Salvar</button>
+        </td>
+      </tr>
+    `).join('');
+
+  } catch (error) {
+    tbody.innerHTML = '<tr><td colspan="5">Não foi possível conectar ao servidor.</td></tr>';
+  }
+}
+
+async function salvarPerfil(usuarioId) {
+  const token = getToken();
+  const select = document.getElementById(`perfil-${usuarioId}`);
+  const novoPerfil = select.value;
+
+  try {
+    const resposta = await fetch(
+      `https://pingo-de-gente.onrender.com/api/auth/users/${usuarioId}/role`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ role: novoPerfil })
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok || !dados.ok) {
+      alert(dados.message || 'Não foi possível atualizar o perfil.');
+      return;
+    }
+
+    alert('Perfil atualizado com sucesso!');
+    carregarUsuarios();
+
+  } catch (error) {
+    alert('Não foi possível conectar ao servidor.');
+  }
+}
 </script>
 </body>
 </html>
