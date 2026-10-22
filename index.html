@@ -3743,17 +3743,16 @@ if (btnProfile) {
                 });
 
                 document.getElementById('btnProfile').addEventListener('click', () => {
-                    Navigation.navigateTo('perfil');
+                   Navigation.showProfile();
                 });
 
-                document.getElementById('btnManage').addEventListener('click', () => {
-                    if (AuthService.isAdmin()) {
-                        Navigation.navigateTo('painel');
-                    } else {
-                        UI.showToast('Acesso restrito a administradores', 'warning');
-                    }
-                });
-
+               document.getElementById('btnManage').addEventListener('click', () => {
+    if (AuthService.isAdmin()) {
+        UI.showToast('Painel administrativo em manutenção', 'info');
+    } else {
+        UI.showToast('Acesso restrito a administradores', 'warning');
+    }
+});
                 // Botões do perfil
                 document.getElementById('btnSaveProfile').addEventListener('click', () => {
                     this.handleSaveProfile();
