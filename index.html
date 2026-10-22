@@ -3830,25 +3830,28 @@ async handleLogin() {
   })
 });
 
-    const dados = await resposta.json();
-    localStorage.setItem('token', dados.token);
-    localStorage.setItem('usuarioLogado', JSON.stringify(dados.user));
-    verificarAcessoAdministrativo();   
-     
-    UI.setLoading('loginBtn', false);
+  const dados = await resposta.json();
 
-    if (!resposta.ok || !dados.ok) {
-      UI.showError(dados.message || 'E-mail ou senha incorretos.');
-      return;
-    }
+if (!resposta.ok || !dados.ok) {
+  UI.setLoading('loginBtn', false);
+  UI.showError(dados.message || 'E-mail ou senha incorretos.');
+  return;
+}
 
-    sessionStorage.setItem('authToken', dados.token);
-    sessionStorage.setItem(
-      'usuarioLogado',
-      JSON.stringify(dados.user)
-    );
+localStorage.setItem('token', dados.token);
+sessionStorage.setItem('authToken', dados.token);
 
-   AuthService.currentUser = {
+sessionStorage.setItem(
+  'usuarioLogado',
+  JSON.stringify(dados.user)
+);
+
+localStorage.setItem(
+  'usuarioLogado',
+  JSON.stringify(dados.user)
+);
+
+AuthService.currentUser = {
   uid: dados.user.id,
   id: dados.user.id,
   nome: dados.user.nome,
@@ -3863,18 +3866,32 @@ async handleLogin() {
   role: dados.user.role
 };
 
-    UI.showToast(
-      `Bem-vindo(a), ${dados.user.nome}! 👋`,
-      'success'
-    );
+verificarAcessoAdministrativo();
+UI.setLoading('loginBtn', false);
 
-    document.getElementById('loginForm').reset();
+UI.showToast(
+  `Bem-vindo(a), ${dados.user.nome}! 👋`,
+  'success'
+);
 
-   document.getElementById('loginScreen').style.display = 'none'; 
-   document.getElementById('appContainer').classList.add('show'); 
+document.getElementById('loginForm').reset();
+document.getElementById('loginScreen').style.display = 'none';
+document.getElementById('appContainer').classList.add('show');
 
-    UI.renderProducts();
-    UI.updateCartBadge();
+if (typeof UI.renderPerfil === 'function') {
+  UI.renderPerfil();
+}
+
+if (typeof App.renderPerfil === 'function') {
+  App.renderPerfil();
+}
+
+if (typeof carregarPerfil === 'function') {
+  carregarPerfil();
+}
+
+UI.renderProducts();
+UI.updateCartBadge();
 
   } catch (error) {
     console.error('Erro ao realizar login:', error);
@@ -3967,8 +3984,7 @@ async handleLogin() {
   const usuarioAtual = JSON.parse(storedUser);
 
   try {
-   const resposta = await fetch('http://localhost:3000/api/auth/profile', {
-      method: 'PUT',
+   const resposta = await fetch('https://pingo-de-gente.onrender.com/api/auth/profile', {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -4032,7 +4048,7 @@ confirmLogout() {
   localStorage.removeItem('pingo_de_gente_session');
 
   AuthService.currentUser = null;
-  
+
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('appContainer').classList.remove('show');
 
