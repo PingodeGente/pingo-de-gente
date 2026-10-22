@@ -4037,8 +4037,7 @@ confirmLogout() {
                         {
   label: 'Sim, sair',
   style: { background: '#ef5350' },
-  onClick: () => {
-  
+ onClick: () => {
   sessionStorage.removeItem('authToken');
   sessionStorage.removeItem('usuarioLogado');
 
@@ -4049,12 +4048,11 @@ confirmLogout() {
 
   AuthService.currentUser = null;
 
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('appContainer').classList.remove('show');
+  UI.hideMessages();
 
-    UI.hideMessages();
-    App.switchLoginTab('login');
-  }
+  window.location.href = window.location.pathname + '#login';
+  window.location.reload();
+}
 },
                         { 
                             label: 'Cancelar', 
