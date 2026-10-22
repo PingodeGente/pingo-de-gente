@@ -4022,10 +4022,17 @@ confirmLogout() {
   label: 'Sim, sair',
   style: { background: '#ef5350' },
   onClick: () => {
-    sessionStorage.removeItem('authToken');
-    sessionStorage.removeItem('usuarioLogado');
-    AuthService.currentUser = null;
+   onClick: () => {
+  sessionStorage.removeItem('authToken');
+  sessionStorage.removeItem('usuarioLogado');
 
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('usuarioLogado');
+  localStorage.removeItem('token');
+  localStorage.removeItem('pingo_de_gente_session');
+
+  AuthService.currentUser = null;
+  
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('appContainer').classList.remove('show');
 
