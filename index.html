@@ -3734,9 +3734,9 @@ if (btnProfile) {
                    Navigation.showProfile();
                 });
 
-             document.getElementById('btnManage').addEventListener('click', () => {
+               document.getElementById('btnManage').addEventListener('click', () => {
     if (AuthService.isAdmin()) {
-        window.location.href = 'loja-admin.html';
+       window.location.href = 'loja-admin.html';
     } else {
         UI.showToast('Acesso restrito a administradores', 'warning');
     }
