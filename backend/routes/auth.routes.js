@@ -349,5 +349,158 @@ router.put('/profile', async (req, res) => {
     });
   }
 });
+/*
+  GET /api/auth/users
 
+  Lista todos os usuários.
+  Apenas administradores podem acessar.
+*/
+router.get('/users', async (req, res) => {
+  try {
+    const authorization = req.headers.authorization || '';
+    const token = authorization.startsWith('Bearer ')
+      ? authorization.substring(7)
+      : null;
+
+    if (!token) {
+      return res.status(401).json({
+        ok: false,
+        message: 'Token não informado.'
+      });
+    }
+
+    let payload;
+
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(401).json({
+        ok: false,
+        message: 'Token inválido ou expirado.'
+      });
+    }
+
+    const adminCheck = await pool.query(
+      'SELECT role FROM users WHERE id = $1',
+      [payload.sub]
+    );
+
+    if (adminCheck.rowCount === 0 || adminCheck.rows[0].role !== 'admin') {
+      return res.status(403).json({
+        ok: false,
+        message: 'Acesso restrito a administradores.'
+      });
+    }
+
+    const result = await pool.query(
+      `SELECT
+         id,
+         nome,
+         email,
+         telefone,
+         role,
+         created_at
+       FROM users
+       ORDER BY created_at DESC`
+    );
+
+    return res.json({
+      ok: true,
+      users: result.rows
+    });
+  } catch (error) {
+    console.error('Erro ao listar usuários:', error.message);
+
+    return res.status(500).json({
+      ok: false,
+      message: 'Não foi possível listar os usuários.'
+    });
+  }
+});
+
+
+/*
+  PATCH /api/auth/users/:id/role
+
+  Altera o perfil de um usuário.
+  Apenas administradores podem acessar.
+*/
+router.patch('/users/:id/role', async (req, res) => {
+  try {
+    const authorization = req.headers.authorization || '';
+    const token = authorization.startsWith('Bearer ')
+      ? authorization.substring(7)
+      : null;
+
+    if (!token) {
+      return res.status(401).json({
+        ok: false,
+        message: 'Token não informado.'
+      });
+    }
+
+    let payload;
+
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(401).json({
+        ok: false,
+        message: 'Token inválido ou expirado.'
+      });
+    }
+
+    const adminCheck = await pool.query(
+      'SELECT role FROM users WHERE id = $1',
+      [payload.sub]
+    );
+
+    if (adminCheck.rowCount === 0 || adminCheck.rows[0].role !== 'admin') {
+      return res.status(403).json({
+        ok: false,
+        message: 'Acesso restrito a administradores.'
+      });
+    }
+
+    const { id } = req.params;
+    const { role } = req.body;
+
+    const perfisPermitidos = ['cliente', 'lojista', 'admin'];
+
+    if (!perfisPermitidos.includes(role)) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Perfil inválido.'
+      });
+    }
+
+    const result = await pool.query(
+      `UPDATE users
+       SET role = $1
+       WHERE id = $2
+       RETURNING id, nome, email, role`,
+      [role, id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        ok: false,
+        message: 'Usuário não encontrado.'
+      });
+    }
+
+    return res.json({
+      ok: true,
+      message: 'Perfil atualizado com sucesso.',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar perfil do usuário:', error.message);
+
+    return res.status(500).json({
+      ok: false,
+      message: 'Não foi possível atualizar o perfil.'
+    });
+  }
+});
 module.exports = router;
