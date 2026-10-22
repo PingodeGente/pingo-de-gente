@@ -4240,7 +4240,6 @@ async function carregarUsuarios() {
     tbody.innerHTML = '<tr><td colspan="5">Não foi possível conectar ao servidor.</td></tr>';
   }
 }
-
 async function salvarPerfil(usuarioId) {
   const token = getToken();
   const select = document.getElementById(`perfil-${usuarioId}`);
@@ -4250,7 +4249,7 @@ async function salvarPerfil(usuarioId) {
     const resposta = await fetch(
       `https://pingo-de-gente.onrender.com/api/auth/users/${usuarioId}/role`,
       {
-        method: 'PATCH',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -4262,12 +4261,12 @@ async function salvarPerfil(usuarioId) {
     const dados = await resposta.json();
 
     if (!resposta.ok || !dados.ok) {
-      alert(dados.message || 'Não foi possível atualizar o perfil.');
+      alert(dados.message || 'Erro ao salvar o perfil.');
       return;
     }
 
     alert('Perfil atualizado com sucesso!');
-    carregarUsuarios();
+    await carregarUsuarios();
 
   } catch (error) {
     alert('Não foi possível conectar ao servidor.');
