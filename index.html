@@ -30,6 +30,43 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <style>
+
+#usuariosSection {
+    overflow-x: auto;
+}
+
+#usuariosSection .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+#usuariosSection .admin-table th,
+#usuariosSection .admin-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+    white-space: nowrap;
+}
+
+#usuariosSection select {
+    padding: 6px;
+    border-radius: 6px;
+}
+
+#usuariosSection button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    background: #1976d2;
+    color: #fff;
+    cursor: pointer;
+}
+
+#usuariosSection button:hover {
+    background: #1565c0;
+}
+
         /* ============================================
            CSS BASE - Reset e Variáveis
            ============================================ */
