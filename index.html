@@ -2058,73 +2058,79 @@
         </div>
 
         <!-- View: Painel -->
-        <div class="view" id="view-painel">
-            <div class="painel-container">
-                <h2>🛡️ Painel da Loja</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: #e3f2fd;">📦</div>
-                        <div class="stat-value" id="statProdutos">--</div>
-                        <div class="stat-label">Produtos Ativos</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: #fce4ec;">🛒</div>
-                        <div class="stat-value" id="statPedidos">--</div>
-                        <div class="stat-label">Pedidos Hoje</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: #fff8e1;">⭐</div>
-                        <div class="stat-value" id="statAvaliacao">--</div>
-                        <div class="stat-label">Avaliação</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: #e8f5e9;">💰</div>
-                        <div class="stat-value" id="statVendas">--</div>
-                        <div class="stat-label">Vendas Hoje</div>
-                    </div>
-                </div>
-                <div class="painel-section">
-                    <h3>📊 Resumo Rápido</h3>
-                    <div class="painel-list-item">
-                        <span class="item-name">Itens na Sacola</span>
-                        <span class="item-value" id="painelCartItems">0</span>
-                    </div>
-                    <div class="painel-list-item">
-                        <span class="item-name">Peças reservadas</span>
-                        <span class="item-value" style="color: #ff5722;" id="painelReserved">0</span>
-                    </div>
-                </div>
-                <div class="painel-section">
-                    <h3>⚡ Ações Rápidas</h3>
-                        <button class="painel-action-btn secondary" id="btnReport" disabled>
-                            📄 Gerar Relatório (em desenvolvimento)
-                        </button>
-                        <button class="painel-action-btn" onclick="showUsuariosSection()">
-                             👥 Gerenciar Usuários
-                        </button>
-                </div>
-                <section id="usuariosSection" class="painel-section" style="display:none;">
-    <h3>👥 Gerenciamento de Usuários</h3>
+        <!-- View: Painel -->
+<div class="view" id="view-painel">
+    <div class="painel-container">
+        <h2>🛡️ Painel da Loja</h2>
 
-    <table class="admin-table">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>E-mail</th>
-                <th>Perfil atual</th>
-                <th>Alterar perfil</th>
-                <th>Ação</th>
-            </tr>
-        </thead>
-        <tbody id="usuariosTableBody">
-            <tr>
-                <td colspan="5">Carregando usuários...</td>
-            </tr>
-        </tbody>
-    </table>
-</section>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #e3f2fd;">📦</div>
+                <div class="stat-value" id="statProdutos">--</div>
+                <div class="stat-label">Produtos Ativos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #fce4ec;">🛒</div>
+                <div class="stat-value" id="statPedidos">--</div>
+                <div class="stat-label">Pedidos Hoje</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #fff8e1;">⭐</div>
+                <div class="stat-value" id="statAvaliacao">--</div>
+                <div class="stat-label">Avaliação</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #e8f5e9;">💰</div>
+                <div class="stat-value" id="statVendas">--</div>
+                <div class="stat-label">Vendas Hoje</div>
             </div>
         </div>
+
+        <div class="painel-section">
+            <h3>📊 Resumo Rápido</h3>
+            <div class="painel-list-item">
+                <span class="item-name">Itens na Sacola</span>
+                <span class="item-value" id="painelCartItems">0</span>
+            </div>
+            <div class="painel-list-item">
+                <span class="item-name">Peças reservadas</span>
+                <span class="item-value" style="color: #ff5722;" id="painelReserved">0</span>
+            </div>
+        </div>
+
+        <div class="painel-section">
+            <h3>⚡ Ações Rápidas</h3>
+            <button class="painel-action-btn secondary" id="btnReport" disabled>
+                📄 Gerar Relatório (em desenvolvimento)
+            </button>
+
+            <button class="painel-action-btn" onclick="showUsuariosSection()">
+                👥 Gerenciar Usuários
+            </button>
+        </div>
+
+        <section id="usuariosSection" class="painel-section" style="display:none;">
+            <h3>👥 Gerenciamento de Usuários</h3>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th>Perfil atual</th>
+                        <th>Alterar perfil</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="usuariosTableBody">
+                    <tr>
+                        <td colspan="5">Carregando usuários...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+</div>
 
         <!-- View: Perfil -->
         <div class="view" id="view-perfil">
