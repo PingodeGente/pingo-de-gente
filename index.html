@@ -2033,20 +2033,11 @@
                     <h2>Todas as Peças</h2>
                     <div class="count" id="productCount">Carregando...</div>
                 </div>
-        <!--     <button class="manage-btn" id="btnManage" aria-label="Gerenciar Loja"
-        onclick="window.location.href='loja-admin.html'">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                    </svg>
-                    Gerenciar Loja
-                </button> -->
-                <button id="botaoGerenciarLoja" class="manage-btn"
+                      <button id="botaoGerenciarLoja" class="manage-btn"
         onclick="window.location.href='loja-admin.html'"
         style="display:none;">
   Gerenciar Loja
 </button>
-
-
             </div>
 
             <div class="products-grid" id="productsGrid"></div>
@@ -2110,9 +2101,9 @@
                 </div>
                 <div class="painel-section">
                     <h3>⚡ Ações Rápidas</h3>
-                    <button class="painel-action-btn secondary" id="btnReport" disabled>
-                        📄 Gerar Relatório (em desenvolvimento)
-                    </button>
+                        <button class="painel-action-btn secondary" id="btnReport" disabled>
+                            📄 Gerar Relatório (em desenvolvimento)
+                        </button>
                 </div>
             </div>
         </div>
@@ -3743,9 +3734,9 @@ if (btnProfile) {
                    Navigation.showProfile();
                 });
 
-               document.getElementById('btnManage').addEventListener('click', () => {
+             document.getElementById('btnManage').addEventListener('click', () => {
     if (AuthService.isAdmin()) {
-        UI.showToast('Painel administrativo em manutenção', 'info');
+        window.location.href = 'loja-admin.html';
     } else {
         UI.showToast('Acesso restrito a administradores', 'warning');
     }
