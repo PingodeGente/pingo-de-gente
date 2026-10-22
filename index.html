@@ -4249,7 +4249,7 @@ async function salvarPerfil(usuarioId) {
     const resposta = await fetch(
       `https://pingo-de-gente.onrender.com/api/auth/users/${usuarioId}/role`,
       {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -4269,7 +4269,8 @@ async function salvarPerfil(usuarioId) {
     await carregarUsuarios();
 
   } catch (error) {
-    alert('Não foi possível conectar ao servidor.');
+    console.error('Erro ao salvar perfil:', error);
+alert('Erro ao salvar perfil: ' + error.message);
   }
 }
 </script>
