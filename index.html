@@ -1966,8 +1966,7 @@
                 </div>
             </div>
             <div class="header-actions">
-               
-                <button class="icon-btn profile" id="btnProfile" aria-label="Meu Perfil">
+                               <button class="icon-btn profile" id="btnProfile" aria-label="Meu Perfil">
                                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
@@ -3730,13 +3729,6 @@ if (btnProfile) {
                    Navigation.showProfile();
                 });
 
-               document.getElementById('btnManage').addEventListener('click', () => {
-    if (AuthService.isAdmin()) {
-       window.location.href = 'loja-admin.html';
-    } else {
-        UI.showToast('Acesso restrito a administradores', 'warning');
-    }
-});
                 // Botões do perfil
                 document.getElementById('btnSaveProfile').addEventListener('click', () => {
                     this.handleSaveProfile();
