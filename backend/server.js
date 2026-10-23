@@ -118,6 +118,40 @@ function verificarAdmin(req, res, next) {
   req.usuario = payload;
   next();
 }
+function verificarPerfil(perfisPermitidos) {
+  return (req, res, next) => {
+    const header = req.headers.authorization || '';
+    const token = header.replace('Bearer ', '').trim();
+
+    if (!token) {
+      return res.status(401).json({
+        ok: false,
+        message: 'Token não informado.'
+      });
+    }
+
+    let payload;
+
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (e) {
+      return res.status(401).json({
+        ok: false,
+        message: 'Token inválido ou expirado.'
+      });
+    }
+
+    if (!perfisPermitidos.includes(payload.role)) {
+      return res.status(403).json({
+        ok: false,
+        message: 'Acesso restrito.'
+      });
+    }
+
+    req.usuario = payload;
+    next();
+  };
+}
 app.use('/uploads', express.static(pastaUploads));
 
 app.post('/api/produtos', verificarAdmin, async (req, res) => {

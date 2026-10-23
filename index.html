@@ -2094,7 +2094,7 @@
             </div>
         </div>
 
-        <!-- View: Painel -->
+        
         <!-- View: Painel -->
 <div class="view" id="view-painel">
     <div class="painel-container">
@@ -2141,8 +2141,8 @@
                 📄 Gerar Relatório (em desenvolvimento)
             </button>
 
-            <button class="painel-action-btn" onclick="showUsuariosSection()">
-                👥 Gerenciar Usuários
+            <button class="painel-action-btn" id="btnGerenciarUsuarios" onclick="showUsuariosSection()">
+                 👥 Gerenciar Usuários
             </button>
         </div>
 
@@ -3881,6 +3881,10 @@ if (!resposta.ok || !dados.ok) {
 
 localStorage.setItem('token', dados.token);
 sessionStorage.setItem('authToken', dados.token);
+localStorage.setItem('userRole', dados.user.role);
+sessionStorage.setItem('userRole', dados.user.role);
+Storage.set('userRole', dados.user.role);
+Storage.set('userData', dados.user);
 
 sessionStorage.setItem(
   'usuarioLogado',
@@ -4170,9 +4174,19 @@ UI.renderProfile();
         };
 
           // Inicializa aplicação
-    document.addEventListener('DOMContentLoaded', () => {
-        App.init();
-    });
+  document.addEventListener('DOMContentLoaded', () => {
+  App.init();
+  aplicarPermissoes();
+});
+    function aplicarPermissoes() {
+  const role = localStorage.getItem('userRole');
+
+  const btnGerenciarUsuarios = document.getElementById('btnGerenciarUsuarios');
+
+  if (btnGerenciarUsuarios) {
+    btnGerenciarUsuarios.style.display = (role === 'admin') ? 'block' : 'none';
+  }
+}
 </script>
 <script>
 function getToken() {
