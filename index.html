@@ -4176,9 +4176,10 @@ UI.renderProfile();
           // Inicializa aplicação
   document.addEventListener('DOMContentLoaded', () => {
   App.init();
-  aplicarPermissoes();
+  setTimeout(aplicarPermissoes, 800);
 });
-    function aplicarPermissoes() {
+
+function aplicarPermissoes() {
   const role = localStorage.getItem('userRole');
 
   const btnGerenciarUsuarios = document.getElementById('btnGerenciarUsuarios');
