@@ -4180,12 +4180,18 @@ UI.renderProfile();
 });
 
 function aplicarPermissoes() {
-  const role = localStorage.getItem('userRole');
+  let role = localStorage.getItem('userRole') || '';
 
-  const btnGerenciarUsuarios = document.getElementById('btnGerenciarUsuarios');
+  try {
+    role = JSON.parse(role);
+  } catch (e) {
+    // se não for JSON, mantém o valor original
+  }
 
-  if (btnGerenciarUsuarios) {
-    btnGerenciarUsuarios.style.display = (role === 'admin') ? 'block' : 'none';
+  const btn = document.getElementById('btnGerenciarUsuarios');
+
+  if (btn) {
+    btn.style.display = (role === 'admin') ? 'block' : 'none';
   }
 }
 </script>
