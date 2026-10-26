@@ -517,28 +517,40 @@ const textoOriginal = botao.textContent;
     botao.textContent = textoOriginal;
   }
 }
-
 async function removerProduto(id) {
   if (!confirm('Deseja realmente excluir este produto?')) {
     return;
   }
 
+  const token = localStorage.getItem('token') || sessionStorage.getItem('authToken');
+
+  if (!token) {
+    alert('Sessão expirada. Faça login novamente.');
+    return;
+  }
+
   try {
     const resposta = await fetch(`${API_URL}/api/produtos/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
     });
 
-    const dados = await resposta.json();
+    const dados = await resposta.json().catch(() => ({}));
 
     if (!resposta.ok) {
-      alert(dados.erro || 'Erro ao excluir produto.');
+      alert(dados.erro || dados.message || 'Erro ao excluir produto.');
       return;
     }
 
     produtos = produtos.filter(produto => produto.id !== id);
     renderizarProdutos();
+
+    alert('Produto excluído com sucesso!');
   } catch (error) {
-    console.error(error);
+    console.error('Erro ao excluir produto:', error);
     alert('Não foi possível excluir o produto.');
   }
 }
@@ -583,8 +595,8 @@ function renderizarProdutos() {
     Editar
   </button>
 
-        <button class="excluir" onclick="removerProduto('${produto.id}')">
-          Excluir
+        <button type="button" class="excluir" onclick="removerProduto('${produto.id}')">
+            Excluir
         </button>
       </div>
     </div>
