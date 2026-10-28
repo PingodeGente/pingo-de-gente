@@ -153,12 +153,48 @@ function verificarPerfil(perfisPermitidos) {
   };
 }
 app.use('/uploads', express.static(pastaUploads));
+async function gerarCodigoUnico() {
+  const letras = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const numeros = '0123456789';
+
+  const gerar = () => {
+    let codigo = '';
+
+    for (let i = 0; i < 3; i++) {
+      codigo += letras[Math.floor(Math.random() * letras.length)];
+    }
+
+    for (let i = 0; i < 4; i++) {
+      codigo += numeros[Math.floor(Math.random() * numeros.length)];
+    }
+
+    return codigo;
+  };
+
+  let codigo = gerar();
+  let tentativas = 0;
+
+  while (tentativas < 50) {
+    const existe = await pool.query(
+      'SELECT 1 FROM products WHERE codigo = $1 LIMIT 1',
+      [codigo]
+    );
+
+    if (existe.rowCount === 0) {
+      return codigo;
+    }
+
+    codigo = gerar();
+    tentativas++;
+  }
+
+  throw new Error('Não foi possível gerar um código único.');
+}
 
 app.post('/api/produtos', verificarAdmin, async (req, res) => {
   try {
     const {
       nome,
-      codigo,
       categoria,
       precoReal,
       precoPromocional,
@@ -166,11 +202,13 @@ app.post('/api/produtos', verificarAdmin, async (req, res) => {
       fotoUrl
     } = req.body;
 
-    if (!nome || !codigo || !categoria) {
+    if (!nome || !categoria) {
       return res.status(400).json({
-        erro: 'Nome, código e categoria são obrigatórios.'
+        erro: 'Nome e categoria são obrigatórios.'
       });
     }
+
+    const codigoFinal = await gerarCodigoUnico();
 
     const result = await pool.query(
       `INSERT INTO products
@@ -179,7 +217,7 @@ app.post('/api/produtos', verificarAdmin, async (req, res) => {
        RETURNING *`,
       [
         nome,
-        codigo,
+        codigoFinal,
         categoria,
         precoReal,
         precoPromocional,
@@ -190,17 +228,7 @@ app.post('/api/produtos', verificarAdmin, async (req, res) => {
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error('Erro ao cadastrar produto:', error.message);
-
-    if (error.code === '23505') {
-      return res.status(409).json({
-        erro: 'Já existe um produto com este código.'
-      });
-    }
-
-    res.status(500).json({
-      erro: 'Erro ao cadastrar produto.'
-    });
+    // ... resto igual
   }
 });
 
