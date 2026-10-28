@@ -225,7 +225,15 @@ app.post('/api/produtos', verificarAdmin, async (req, res) => {
         fotoUrl || null
       ]
     );
+const produtoId = result.rows[0].id;
 
+for (let i = 0; i < (req.body.fotos || []).length; i++) {
+  await pool.query(
+    `INSERT INTO product_photos (product_id, imagem_base64, ordem)
+     VALUES ($1, $2, $3)`,
+    [produtoId, req.body.fotos[i], i]
+  );
+}
     res.status(201).json(result.rows[0]);
   } catch (error) {
     // ... resto igual
