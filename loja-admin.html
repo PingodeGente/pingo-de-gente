@@ -306,7 +306,15 @@ button.secondary {
 
 <label for="fotoGaleria">Foto do produto</label>
 <input id="fotoGaleria" type="file" accept="image/*" onchange="selecionarFoto(event)">
+function obterFotoBase64() {
+  const preview = document.getElementById('imagemPreview');
 
+  if (preview && preview.src && preview.src.startsWith('data:image')) {
+    return preview.src;
+  }
+
+  return null;
+}
 <button type="button" class="secondary" onclick="abrirCamera()">
   Tirar foto com a câmera
 </button>
@@ -455,14 +463,14 @@ async function salvarProduto() {
     return;
   }
 const dados = {
-    nome,
-    codigo,
-    categoria,
-    precoReal,
-    precoPromocional,
-    estoque,
-    fotoUrl: fotoProduto,
-    ativo: true
+  nome: document.getElementById('prodNome').value.trim(),
+  categoria: document.getElementById('prodCategoria').value,
+  precoReal: parseFloat(document.getElementById('prodPreco').value),
+  precoPromocional: document.getElementById('prodPrecoPromo').value
+    ? parseFloat(document.getElementById('prodPrecoPromo').value)
+    : null,
+  estoque: parseInt(document.getElementById('prodEstoque').value, 10),
+  fotoUrl: fotoProduto
 };
 
 const token = localStorage.getItem('token');
