@@ -306,15 +306,7 @@ button.secondary {
 
 <label for="fotoGaleria">Foto do produto</label>
 <input id="fotoGaleria" type="file" accept="image/*" onchange="selecionarFoto(event)">
-function obterFotoBase64() {
-  const preview = document.getElementById('imagemPreview');
 
-  if (preview && preview.src && preview.src.startsWith('data:image')) {
-    return preview.src;
-  }
-
-  return null;
-}
 <button type="button" class="secondary" onclick="abrirCamera()">
   Tirar foto com a câmera
 </button>
@@ -525,6 +517,17 @@ const textoOriginal = botao.textContent;
     botao.textContent = textoOriginal;
   }
 }
+
+function obterFotoBase64() {
+  const preview = document.getElementById('imagemPreview');
+
+  if (preview && preview.src && preview.src.startsWith('data:image')) {
+    return preview.src;
+  }
+
+  return null;
+}
+
 async function removerProduto(id) {
   if (!confirm('Deseja realmente excluir este produto?')) {
     return;
