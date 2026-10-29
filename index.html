@@ -3139,12 +3139,12 @@ carregarProdutosDoBanco();
                     const discount = this.calculateDiscount(p.oldPrice, p.price);
 
                     return `
-                  <div class="product-img">
+                <div class="product-img">
   ${
     p.fotos && p.fotos.length > 0
       ? `<div style="display:flex; overflow-x:auto; height:100%; gap:6px;">
             ${p.fotos.map(foto => `
-              <img src="${foto.url}"
+              <img src="${foto.foto_url}"
                    alt="${p.name}"
                    style="height:100%; width:auto; object-fit:cover;">
             `).join('')}
