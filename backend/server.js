@@ -43,12 +43,34 @@ app.get('/api/produtos', async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT *
- FROM products
- WHERE ativo = true
- ORDER BY criado_em DESC`
+       FROM products
+       WHERE ativo = true
+       ORDER BY criado_em DESC`
     );
 
-    res.json(result.rows);
+    const produtos = [];
+
+    for (const produto of result.rows) {
+      const fotosResult = await pool.query(
+        `SELECT ordem, imagem_base64
+         FROM product_photos
+         WHERE product_id = $1
+         ORDER BY ordem ASC`,
+        [produto.id]
+      );
+
+      const fotos = fotosResult.rows.map(foto => ({
+        ordem: foto.ordem,
+        url: foto.imagem_base64
+      }));
+
+      produtos.push({
+        ...produto,
+        fotos
+      });
+    }
+
+    res.json(produtos);
   } catch (error) {
     console.error('Erro ao listar produtos:', error.message);
 
