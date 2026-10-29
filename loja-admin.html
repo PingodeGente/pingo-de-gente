@@ -394,7 +394,7 @@ function selecionarFoto(evento) {
       const contexto = canvas.getContext('2d');
       contexto.drawImage(imagem, 0, 0, largura, altura);
 
-      const foto = canvas.toDataURL('image/jpeg', 0.7);
+     const foto = canvas.toDataURL('image/jpeg', 0.7);
 fotosProduto.push(foto);
 renderizarFotos();
 
@@ -522,26 +522,21 @@ const textoOriginal = botao.textContent;
       return;
     }
 
-    alert(produtoEmEdicao
+        alert(produtoEmEdicao
       ? 'Produto atualizado com sucesso.'
       : 'Produto cadastrado com sucesso.');
 
-    produtoEmEdicao = null;
-    fotoProduto = null;
-
-    document.getElementById('imagemPreview').src = '';
-    document.getElementById('imagemPreview').style.display = 'none';
-    document.getElementById('botaoRemoverFoto').style.display = 'none';
-    document.getElementById('fotoGaleria').value = '';
-
     cancelarEdicao();
-    carregarProdutos();
+    await carregarProdutos();
+
   } catch (erro) {
     console.error('Erro ao salvar produto:', erro);
-    alert('Não foi possível conectar ao backend.');
+    alert('Não foi possível concluir a operação. Consulte o Console.');
   } finally {
     botao.disabled = false;
-    botao.textContent = textoOriginal;
+    botao.textContent = produtoEmEdicao
+      ? 'Salvar alterações'
+      : 'Cadastrar';
   }
 }
 
@@ -679,24 +674,21 @@ function editarProduto(id) {
 
 function cancelarEdicao() {
   produtoEmEdicao = null;
+  fotoProduto = null;
+  fotosProduto = [];
 
   document.getElementById('nome').value = '';
   document.getElementById('precoReal').value = '';
   document.getElementById('precoPromocional').value = '';
   document.getElementById('estoque').value = 1;
-  document.getElementById('botaoRemoverFoto').style.display = 'none';
-
-  fotoProduto = null;
-
-  const preview = document.getElementById('imagemPreview');
-  preview.src = '';
-  preview.style.display = 'none';
-
   document.getElementById('fotoGaleria').value = '';
 
+  renderizarFotos();
   atualizarCodigo();
+
   document.getElementById('botaoCadastrar').textContent = 'Cadastrar';
 }
+
 async function carregarProdutos() {
   try {
     const resposta = await fetch(`${API_URL}/api/produtos`);
