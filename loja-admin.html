@@ -602,13 +602,13 @@ function renderizarProdutos() {
 
   lista.innerHTML = produtos.map(produto => `
     <div class="produto">
-      <div style="display:flex; gap:12px; align-items:center;">
-        <img src="${produto.foto_url || ''}"
-             alt="Foto de ${produto.nome}"
-             style="width:64px; height:64px; object-fit:cover; border-radius:10px;
-                    display:${produto.foto_url ? 'block' : 'none'};">
-
-        <div>
+     <div style="display:flex; gap:6px; overflow-x:auto; max-width:180px;">
+  ${(produto.fotos || []).map(foto => `
+    <img src="${foto.url}"
+         alt="Foto de ${produto.nome}"
+         style="width:48px; height:48px; object-fit:cover; border-radius:8px;">
+  `).join('')}
+</div>
           <strong>${produto.nome}</strong><br>
 
           <small>
