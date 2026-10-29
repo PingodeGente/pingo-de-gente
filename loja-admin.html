@@ -482,13 +482,13 @@ async function salvarProduto() {
     return;
   }
 const dados = {
-  nome: document.getElementById('prodNome').value.trim(),
-  categoria: document.getElementById('prodCategoria').value,
-  precoReal: parseFloat(document.getElementById('prodPreco').value),
-  precoPromocional: document.getElementById('prodPrecoPromo').value
-    ? parseFloat(document.getElementById('prodPrecoPromo').value)
-    : null,
-  estoque: parseInt(document.getElementById('prodEstoque').value, 10),
+  nome,
+  categoria,
+  codigo,
+  precoReal,
+  precoPromocional,
+  estoque,
+  fotoUrl: fotosProduto[0] || null,
   fotos: fotosProduto
 };
 
