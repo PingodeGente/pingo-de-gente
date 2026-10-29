@@ -2479,7 +2479,8 @@ const dados = await resposta.json();
             stock: produto.estoque,
             price: Number(produto.preco_promocional),
             oldPrice: Number(produto.preco_real),
-            foto: produto.foto_url,
+            fotos: produto.fotos || [],
+foto: produto.fotos && produto.fotos.length > 0 ? produto.fotos[0].url : null,
             ativo: true
         }));
 
@@ -2747,7 +2748,8 @@ isLojista() {
                 stock: produto.estoque,
                 price: Number(produto.preco_promocional),
                 oldPrice: Number(produto.preco_real),
-                foto: produto.foto_url,
+               fotos: produto.fotos || [],
+foto: produto.fotos && produto.fotos.length > 0 ? produto.fotos[0].url : null,
                 ativo: true
             }));
 
@@ -2962,7 +2964,8 @@ async function carregarProdutosDoBanco() {
         stock: produto.estoque,
         price: Number(produto.preco_promocional),
         oldPrice: Number(produto.preco_real),
-        foto: produto.foto_url,
+        fotos: produto.fotos || [],
+foto: produto.fotos && produto.fotos.length > 0 ? produto.fotos[0].url : null,
         ativo: true
       }))
     );
@@ -3136,18 +3139,17 @@ carregarProdutosDoBanco();
                     const discount = this.calculateDiscount(p.oldPrice, p.price);
 
                     return `
-                        <div class="product-card" data-product-id="${p.id}">
-                          <div class="product-img">
-                                ${
-                                    p.foto
-                                    ? `<img src="${p.foto}"
-                                            alt="${p.name}"
-                                            style="width:100%; height:100%; object-fit:cover;">`
-                                    : `<div class="placeholder-img ${p.category}">
-                                        ${p.emoji}
-                                        </div>`
-                                }
-                            </div>
+                       <div class="product-img">
+  ${
+    p.fotos && p.fotos.length > 0
+      ? `<img src="${p.fotos[0].url}"
+              alt="${p.name}"
+              style="width:100%; height:100%; object-fit:cover;">`
+      : `<div class="placeholder-img ${p.category}">
+            ${p.emoji}
+         </div>`
+  }
+</div>
                             
                             <div class="product-info">
                                 <div class="product-meta">
