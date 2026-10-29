@@ -305,8 +305,7 @@ button.secondary {
 <input id="estoque" type="number" min="0" value="1">
 
 <label for="fotoGaleria">Foto do produto</label>
-<input id="fotoGaleria" type="file" accept="image/*" onchange="selecionarFoto(event)">
-
+<input id="fotoGaleria" type="file" accept="image/*" multiple onchange="selecionarFoto(event)">
 <button type="button" class="secondary" onclick="abrirCamera()">
   Tirar foto com a câmera
 </button>
