@@ -59,10 +59,17 @@ app.get('/api/produtos', async (req, res) => {
         [produto.id]
       );
 
-      const fotos = fotosResult.rows.map(foto => ({
-        ordem: foto.ordem,
-        url: foto.imagem_base64
-      }));
+      let fotos = fotosResult.rows.map(foto => ({
+  ordem: foto.ordem,
+  url: foto.imagem_base64
+}));
+
+if (fotos.length === 0 && produto.foto_url) {
+  fotos = [{
+    ordem: 0,
+    url: produto.foto_url
+  }];
+}
 
       produtos.push({
         ...produto,
