@@ -353,62 +353,67 @@ function gerarCodigo(categoria) {
   return `${prefixo}${numero}`;
 }
 
-function selecionarFoto(evento) {
-  const arquivo = evento.target.files[0];
+async function selecionarFoto(evento) {
+  const arquivos = Array.from(evento.target.files);
 
-  if (!arquivo) {
+  if (arquivos.length === 0) {
     return;
   }
 
-  if (!arquivo.type.startsWith('image/')) {
-    alert('Selecione um arquivo de imagem.');
-    return;
+  for (const arquivo of arquivos) {
+    if (!arquivo.type.startsWith('image/')) {
+      alert('Selecione apenas arquivos de imagem.');
+      continue;
+    }
+
+    const foto = await comprimirImagem(arquivo);
+    fotosProduto.push(foto);
   }
 
-  const leitor = new FileReader();
+  renderizarFotos();
 
-  leitor.onload = function (eventoLeitura) {
-    const imagem = new Image();
+  evento.target.value = '';
+}
 
-    imagem.onload = function () {
-      const larguraMaxima = 800;
-      const alturaMaxima = 800;
+async function comprimirImagem(arquivo) {
+  return new Promise((resolver) => {
+    const leitor = new FileReader();
 
-      let largura = imagem.width;
-      let altura = imagem.height;
+    leitor.onload = function (eventoLeitura) {
+      const imagem = new Image();
 
-      if (largura > larguraMaxima || altura > alturaMaxima) {
-        const proporcao = Math.min(
-          larguraMaxima / largura,
-          alturaMaxima / altura
-        );
+      imagem.onload = function () {
+        const larguraMaxima = 800;
+        const alturaMaxima = 800;
 
-        largura = Math.round(largura * proporcao);
-        altura = Math.round(altura * proporcao);
-      }
+        let largura = imagem.width;
+        let altura = imagem.height;
 
-      const canvas = document.createElement('canvas');
-      canvas.width = largura;
-      canvas.height = altura;
+        if (largura > larguraMaxima || altura > alturaMaxima) {
+          const proporcao = Math.min(
+            larguraMaxima / largura,
+            alturaMaxima / altura
+          );
 
-      const contexto = canvas.getContext('2d');
-      contexto.drawImage(imagem, 0, 0, largura, altura);
+          largura = Math.round(largura * proporcao);
+          altura = Math.round(altura * proporcao);
+        }
 
-     const foto = canvas.toDataURL('image/jpeg', 0.7);
-fotosProduto.push(foto);
-renderizarFotos();
+        const canvas = document.createElement('canvas');
+        canvas.width = largura;
+        canvas.height = altura;
 
-      const preview = document.getElementById('imagemPreview');
-      preview.src = fotoProduto;
-      preview.style.display = 'block';
+        const contexto = canvas.getContext('2d');
+        contexto.drawImage(imagem, 0, 0, largura, altura);
 
-      document.getElementById('botaoRemoverFoto').style.display = 'inline-block';
+        resolver(canvas.toDataURL('image/jpeg', 0.7));
+      };
+
+      imagem.src = eventoLeitura.target.result;
     };
 
-    imagem.src = eventoLeitura.target.result;
-  };
-
-  leitor.readAsDataURL(arquivo);
+    leitor.readAsDataURL(arquivo);
+  });
 }
 function renderizarFotos() {
   const container = document.getElementById('previewFoto');

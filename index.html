@@ -3182,14 +3182,14 @@ carregarProdutosDoBanco();
                 grid.querySelectorAll('[data-add-cart]').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        const productId = parseInt(btn.dataset.addCart);
+                        const productId = btn.dataset.addCart;
                         this.handleAddToCart(productId);
                     });
                 });
 
                 grid.querySelectorAll('.product-card').forEach(card => {
                     card.addEventListener('click', () => {
-                        const productId = parseInt(card.dataset.productId);
+                      const productId = card.dataset.productId;
                         this.showProductModal(productId);
                     });
                 });
