@@ -289,10 +289,15 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
     }
 
     const fotosFinais = Array.isArray(fotos)
-      ? fotos.filter(foto => Boolean(foto))
+      ? fotos
+          .map(foto => ({
+            imagem: foto.imagem || foto,
+            estoque: Number(foto.estoque) || 0
+          }))
+          .filter(foto => Boolean(foto.imagem))
       : [];
 
-    const fotoPrincipal = fotosFinais[0] || fotoUrl || null;
+    const fotoPrincipal = fotosFinais[0]?.imagem || fotoUrl || null;
 
     const result = await pool.query(
       `UPDATE products
@@ -332,14 +337,19 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
     for (let i = 0; i < fotosFinais.length; i++) {
       await pool.query(
         `INSERT INTO product_photos
-          (product_id, imagem_base64, ordem)
-         VALUES ($1, $2, $3)`,
-        [req.params.id, fotosFinais[i], i]
+          (product_id, imagem_base64, ordem, estoque)
+         VALUES ($1, $2, $3, $4)`,
+        [
+          req.params.id,
+          fotosFinais[i].imagem,
+          i,
+          fotosFinais[i].estoque
+        ]
       );
     }
 
     const fotosAtualizadas = await pool.query(
-      `SELECT id, imagem_base64 AS url, ordem
+      `SELECT id, imagem_base64 AS url, ordem, estoque
        FROM product_photos
        WHERE product_id = $1
        ORDER BY ordem`,
@@ -364,6 +374,7 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
     });
   }
 });
+
 app.patch('/api/produtos/:id/publicar', verificarAdmin, async (req, res) => {
   try {
     const result = await pool.query(
