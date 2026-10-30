@@ -278,7 +278,8 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
       precoReal,
       precoPromocional,
       estoque,
-      fotoUrl
+      fotoUrl,
+      fotos
     } = req.body;
 
     if (!nome || !codigo || !categoria) {
@@ -286,6 +287,12 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
         erro: 'Nome, código e categoria são obrigatórios.'
       });
     }
+
+    const fotosFinais = Array.isArray(fotos)
+      ? fotos.filter(foto => Boolean(foto))
+      : [];
+
+    const fotoPrincipal = fotosFinais[0] || fotoUrl || null;
 
     const result = await pool.query(
       `UPDATE products
@@ -295,7 +302,7 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
            preco_real = $4,
            preco_promocional = $5,
            estoque = $6,
-           foto_url = COALESCE($7, foto_url),
+           foto_url = $7,
            ativo = true
        WHERE id = $8
        RETURNING *`,
@@ -306,7 +313,7 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
         precoReal,
         precoPromocional,
         estoque,
-        fotoUrl,
+        fotoPrincipal,
         req.params.id
       ]
     );
@@ -317,7 +324,31 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
       });
     }
 
-    res.json(result.rows[0]);
+    await pool.query(
+      'DELETE FROM product_photos WHERE product_id = $1',
+      [req.params.id]
+    );
+
+    for (const url of fotosFinais) {
+      await pool.query(
+        `INSERT INTO product_photos (product_id, url)
+         VALUES ($1, $2)`,
+        [req.params.id, url]
+      );
+    }
+
+    const fotosAtualizadas = await pool.query(
+      `SELECT id, url
+       FROM product_photos
+       WHERE product_id = $1
+       ORDER BY id`,
+      [req.params.id]
+    );
+
+    res.json({
+      ...result.rows[0],
+      fotos: fotosAtualizadas.rows
+    });
   } catch (error) {
     console.error('Erro ao atualizar produto:', error.message);
 
