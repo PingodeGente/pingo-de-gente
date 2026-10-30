@@ -656,24 +656,26 @@ function editarProduto(id) {
   document.getElementById('codigo').value = produto.codigo;
   document.getElementById('categoria').value = produto.categoria;
   document.getElementById('precoReal').value = Number(produto.preco_real);
-  document.getElementById('precoPromocional').value = Number(produto.preco_promocional);
+  document.getElementById('precoPromocional').value =
+    Number(produto.preco_promocional);
   document.getElementById('estoque').value = produto.estoque;
 
-  fotoProduto = produto.foto_url || null;
+  fotosProduto = Array.isArray(produto.fotos)
+    ? produto.fotos.map(foto => foto.url).filter(Boolean)
+    : [];
 
-  const preview = document.getElementById('imagemPreview');
+  if (fotosProduto.length === 0 && produto.foto_url) {
+    fotosProduto = [produto.foto_url];
+  }
 
-  if (fotoProduto) {
-  preview.src = fotoProduto;
-  preview.style.display = 'block';
-  document.getElementById('botaoRemoverFoto').style.display = 'inline';
-} else {
-  preview.src = '';
-  preview.style.display = 'none';
-  document.getElementById('botaoRemoverFoto').style.display = 'none';
-}
+  fotoProduto = fotosProduto[0] || null;
 
-  document.getElementById('botaoCadastrar').textContent = 'Salvar alterações';
+  document.getElementById('fotoGaleria').value = '';
+
+  renderizarFotos();
+
+  document.getElementById('botaoCadastrar').textContent =
+    'Salvar alterações';
 }
 
 function cancelarEdicao() {
