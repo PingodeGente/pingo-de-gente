@@ -52,7 +52,7 @@ app.get('/api/produtos', async (req, res) => {
 
     for (const produto of result.rows) {
       const fotosResult = await pool.query(
-        `SELECT ordem, imagem_base64
+        `SELECT ordem, imagem_base64, estoque
          FROM product_photos
          WHERE product_id = $1
          ORDER BY ordem ASC`,
@@ -60,16 +60,18 @@ app.get('/api/produtos', async (req, res) => {
       );
 
       let fotos = fotosResult.rows.map(foto => ({
-  ordem: foto.ordem,
-  url: foto.imagem_base64
-}));
+        ordem: foto.ordem,
+        url: foto.imagem_base64,
+        estoque: Number(foto.estoque) || 0
+      }));
 
-if (fotos.length === 0 && produto.foto_url) {
-  fotos = [{
-    ordem: 0,
-    url: produto.foto_url
-  }];
-}
+      if (fotos.length === 0 && produto.foto_url) {
+        fotos = [{
+          ordem: 0,
+          url: produto.foto_url,
+          estoque: 0
+        }];
+      }
 
       produtos.push({
         ...produto,
