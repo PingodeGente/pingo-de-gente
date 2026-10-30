@@ -258,18 +258,28 @@ app.post('/api/produtos', verificarAdmin, async (req, res) => {
     );
 const produtoId = result.rows[0].id;
 
-for (let i = 0; i < (req.body.fotos || []).length; i++) {
+const fotosParaSalvar = Array.isArray(req.body.fotos)
+  ? req.body.fotos
+      .map(foto => ({
+        imagem: foto.imagem || foto,
+        estoque: Number(foto.estoque) || 0
+      }))
+      .filter(foto => Boolean(foto.imagem))
+  : [];
+
+for (let i = 0; i < fotosParaSalvar.length; i++) {
   await pool.query(
-    `INSERT INTO product_photos (product_id, imagem_base64, ordem)
-     VALUES ($1, $2, $3)`,
-    [produtoId, req.body.fotos[i], i]
+    `INSERT INTO product_photos
+      (product_id, imagem_base64, ordem, estoque)
+     VALUES ($1, $2, $3, $4)`,
+    [
+      produtoId,
+      fotosParaSalvar[i].imagem,
+      i,
+      fotosParaSalvar[i].estoque
+    ]
   );
 }
-    res.status(201).json(result.rows[0]);
-  } catch (error) {
-    // ... resto igual
-  }
-});
 
 app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
   try {
