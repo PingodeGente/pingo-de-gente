@@ -280,6 +280,16 @@ for (let i = 0; i < fotosParaSalvar.length; i++) {
     ]
   );
 }
+res.status(201).json(result.rows[0]);
+
+  } catch (error) {
+    console.error('Erro ao cadastrar produto:', error.message);
+
+    res.status(500).json({
+      erro: 'Erro ao cadastrar produto.'
+    });
+  }
+});
 
 app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
   try {
@@ -303,7 +313,7 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
     const fotosFinais = Array.isArray(fotos)
       ? fotos
           .map(foto => ({
-            imagem: foto.imagem || foto,
+            imagem: typeof foto === 'string' ? foto : foto.imagem,
             estoque: Number(foto.estoque) || 0
           }))
           .filter(foto => Boolean(foto.imagem))
@@ -346,32 +356,48 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
       [req.params.id]
     );
 
-   for (let i = 0; i < fotosParaSalvar.length; i++) {
-  await pool.query(
-    `INSERT INTO product_photos
-      (product_id, imagem_base64, ordem, estoque)
-     VALUES ($1, $2, $3, $4)`,
-    [
-      produtoId,
-      fotosParaSalvar[i].imagem,
-      i,
-      fotosParaSalvar[i].estoque
-    ]
-  );
-}
+    for (let i = 0; i < fotosFinais.length; i++) {
+      await pool.query(
+        `INSERT INTO product_photos
+          (product_id, imagem_base64, ordem, estoque)
+         VALUES ($1, $2, $3, $4)`,
+        [
+          req.params.id,
+          fotosFinais[i].imagem,
+          i,
+          fotosFinais[i].estoque
+        ]
+      );
+    }
 
-res.status(201).json(result.rows[0]);
+    const fotosAtualizadas = await pool.query(
+      `SELECT id, imagem_base64 AS url, ordem, estoque
+       FROM product_photos
+       WHERE product_id = $1
+       ORDER BY ordem`,
+      [req.params.id]
+    );
 
+    res.json({
+      ...result.rows[0],
+      fotos: fotosAtualizadas.rows
+    });
   } catch (error) {
-    console.error('Erro ao cadastrar produto:', error.message);
+    console.error('Erro ao atualizar produto:', error.message);
+
+    if (error.code === '23505') {
+      return res.status(409).json({
+        erro: 'Já existe outro produto com este código.'
+      });
+    }
 
     res.status(500).json({
-      erro: 'Erro ao cadastrar produto.'
+      erro: 'Erro ao atualizar produto.'
     });
   }
 });
 
-app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
+app.patch('/api/produtos/:id/publicar', verificarAdmin, async (req, res) => {
   try {
     const result = await pool.query(
       `UPDATE products
