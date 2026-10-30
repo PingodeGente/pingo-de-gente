@@ -366,14 +366,17 @@ async function selecionarFoto(evento) {
     }
 
     const foto = await comprimirImagem(arquivo);
-    fotosProduto.push(foto);
+
+    fotosProduto.push({
+      imagem: foto,
+      estoque: 0
+    });
   }
 
   renderizarFotos();
 
   evento.target.value = '';
 }
-
 async function comprimirImagem(arquivo) {
   return new Promise((resolver) => {
     const leitor = new FileReader();
