@@ -329,19 +329,20 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
       [req.params.id]
     );
 
-    for (const url of fotosFinais) {
+    for (let i = 0; i < fotosFinais.length; i++) {
       await pool.query(
-        `INSERT INTO product_photos (product_id, url)
-         VALUES ($1, $2)`,
-        [req.params.id, url]
+        `INSERT INTO product_photos
+          (product_id, imagem_base64, ordem)
+         VALUES ($1, $2, $3)`,
+        [req.params.id, fotosFinais[i], i]
       );
     }
 
     const fotosAtualizadas = await pool.query(
-      `SELECT id, url
+      `SELECT id, imagem_base64 AS url, ordem
        FROM product_photos
        WHERE product_id = $1
-       ORDER BY id`,
+       ORDER BY ordem`,
       [req.params.id]
     );
 
