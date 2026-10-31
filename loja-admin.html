@@ -524,11 +524,11 @@ const dados = {
   precoPromocional,
   estoque,
   fotoUrl: fotosProduto[0]?.imagem || null,
- fotos: fotosProduto.map(foto => ({
-  imagem: foto.imagem,
-  estoque: Number(foto.estoque) || 0,
-  tamanho: foto.tamanho || ''
-}))
+  fotos: fotosProduto.map(foto => ({
+    imagem: foto.imagem,
+    estoque: Number(foto.estoque) || 0,
+    tamanho: foto.tamanho || ''
+  }))
 };
 console.log('DADOS ENVIADOS:', dados);
 const token = localStorage.getItem('token');
