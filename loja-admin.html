@@ -504,10 +504,10 @@ async function salvarProduto() {
   const precoPromocional = Number(document.getElementById('precoPromocional').value);
 
 
-  if (!nome || !codigo || precoReal <= 0 || precoPromocional <= 0 || estoque < 0) {
-    alert('Preencha nome, código, preços e estoque corretamente.');
-    return;
-  }
+  if (!nome || !codigo || precoReal <= 0 || precoPromocional <= 0) {
+  alert('Preencha nome, código e preços corretamente.');
+  return;
+}
 
   if (precoPromocional > precoReal) {
     alert('O preço promocional não pode ser maior que o preço real.');
@@ -520,7 +520,6 @@ const dados = {
   codigo,
   precoReal,
   precoPromocional,
-  estoque,
   fotoUrl: fotosProduto[0]?.imagem || null,
   fotos: fotosProduto.map(foto => ({
     imagem: foto.imagem,
