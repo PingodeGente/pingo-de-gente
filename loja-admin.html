@@ -318,7 +318,12 @@ button.secondary {
   </button>
 </div>
 <button id="botaoCadastrar" onclick="salvarProduto()">Cadastrar</button>
-     
+<button type="button" class="secondary" id="botaoCancelar"
+        onclick="cancelarEdicao()"
+        style="display:none;">
+  Cancelar edição
+</button>     
+
       <button class="secondary" onclick="window.location.href='index.html'">
         Voltar ao catálogo
       </button>
@@ -532,6 +537,7 @@ console.log('DADOS ENVIADOS:', dados);
 const token = localStorage.getItem('token');
 
 const botao = document.getElementById('botaoCadastrar');
+document.getElementById('botaoCancelar').style.display = 'inline-block';
 const textoOriginal = botao.textContent;
 
   try {
@@ -715,8 +721,9 @@ function editarProduto(id) {
 
   renderizarFotos();
 
-  document.getElementById('botaoCadastrar').textContent =
-    'Salvar alterações';
+  document.getElementById('botaoCadastrar').textContent =    'Salvar alterações';
+  document.getElementById('botaoCancelar').style.display = 'inline-block';
+  document.getElementById('botaoCancelar').style.display = 'none';
 }
 
 function cancelarEdicao() {
