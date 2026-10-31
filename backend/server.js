@@ -303,7 +303,6 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
       categoria,
       precoReal,
       precoPromocional,
-      estoque,
       fotoUrl,
       fotos
     } = req.body;
