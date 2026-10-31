@@ -247,7 +247,7 @@ app.post('/api/produtos', verificarAdmin, async (req, res) => {
 
     const result = await pool.query(
       `INSERT INTO products
-        (nome, codigo, categoria, preco_real, preco_promocional, estoque, foto_url, ativo)
+        (nome, codigo, categoria, preco_real, preco_promocional, foto_url, ativo)
        VALUES ($1, $2, $3, $4, $5, $6, $7, true)
        RETURNING *`,
       [
@@ -256,7 +256,6 @@ app.post('/api/produtos', verificarAdmin, async (req, res) => {
         categoria,
         precoReal,
         precoPromocional,
-        estoque,
         fotoUrl || null
       ]
     );
