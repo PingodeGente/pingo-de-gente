@@ -259,6 +259,7 @@ const result = await pool.query(
     fotoUrl || null
   ]
 );
+
 const produtoId = result.rows[0].id;
 
 const fotosParaSalvar = Array.isArray(req.body.fotos)
