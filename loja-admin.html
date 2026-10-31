@@ -368,9 +368,10 @@ async function selecionarFoto(evento) {
     const foto = await comprimirImagem(arquivo);
 
     fotosProduto.push({
-      imagem: foto,
-      estoque: 0
-    });
+  imagem: foto,
+  estoque: 0,
+  tamanho: ''
+});
   }
 
   renderizarFotos();
@@ -443,7 +444,15 @@ function renderizarFotos() {
     campoEstoque.oninput = () => {
       fotosProduto[index].estoque = Number(campoEstoque.value) || 0;
     };
+const campoTamanho = document.createElement('input');
+campoTamanho.type = 'text';
+campoTamanho.value = foto.tamanho || '';
+campoTamanho.placeholder = 'Tamanho';
+campoTamanho.style.cssText = 'width:100px;margin-top:6px;padding:6px;border:1px solid #ccc;border-radius:8px;text-align:center;';
 
+campoTamanho.oninput = () => {
+  fotosProduto[index].tamanho = campoTamanho.value.trim();
+};
 
     const btn = document.createElement('button');
     btn.textContent = '✕';
@@ -455,9 +464,9 @@ function renderizarFotos() {
 
 
     div.appendChild(img);
-    div.appendChild(campoEstoque);
-    div.appendChild(btn);
-    container.appendChild(div);
+div.appendChild(campoEstoque);
+div.appendChild(campoTamanho);
+div.appendChild(btn);
   });
 }
 
@@ -695,11 +704,12 @@ function editarProduto(id) {
     : [];
 
   if (fotosProduto.length === 0 && produto.foto_url) {
-    fotosProduto = [{
-      imagem: produto.foto_url,
-      estoque: 0
-    }];
-  }
+  fotosProduto = [{
+    imagem: produto.foto_url,
+    estoque: 0,
+    tamanho: ''
+  }];
+}
 
   fotoProduto = fotosProduto[0]?.imagem || null;
 
