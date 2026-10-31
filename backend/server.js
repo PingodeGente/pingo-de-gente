@@ -262,21 +262,22 @@ const fotosParaSalvar = Array.isArray(req.body.fotos)
   ? req.body.fotos
       .map(foto => ({
         imagem: foto.imagem || foto,
-        estoque: Number(foto.estoque) || 0
+        estoque: Number(foto.estoque) || 0,
+        tamanho: foto.tamanho || ''
       }))
       .filter(foto => Boolean(foto.imagem))
   : [];
-
 for (let i = 0; i < fotosParaSalvar.length; i++) {
   await pool.query(
     `INSERT INTO product_photos
-      (product_id, imagem_base64, ordem, estoque)
-     VALUES ($1, $2, $3, $4)`,
+      (product_id, imagem_base64, ordem, estoque, tamanho)
+     VALUES ($1, $2, $3, $4, $5)`,
     [
       produtoId,
       fotosParaSalvar[i].imagem,
       i,
-      fotosParaSalvar[i].estoque
+      fotosParaSalvar[i].estoque,
+      fotosParaSalvar[i].tamanho
     ]
   );
 }
@@ -310,15 +311,15 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
       });
     }
 
-    const fotosFinais = Array.isArray(fotos)
-      ? fotos
-          .map(foto => ({
-            imagem: typeof foto === 'string' ? foto : foto.imagem,
-            estoque: Number(foto.estoque) || 0
-          }))
-          .filter(foto => Boolean(foto.imagem))
-      : [];
-
+   const fotosFinais = Array.isArray(fotos)
+  ? fotos
+      .map(foto => ({
+        imagem: typeof foto === 'string' ? foto : foto.imagem,
+        estoque: Number(foto.estoque) || 0,
+        tamanho: foto.tamanho || ''
+      }))
+      .filter(foto => Boolean(foto.imagem))
+  : [];
     const fotoPrincipal = fotosFinais[0]?.imagem || fotoUrl || null;
 
     const result = await pool.query(
@@ -357,26 +358,27 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
     );
 
     for (let i = 0; i < fotosFinais.length; i++) {
-      await pool.query(
-        `INSERT INTO product_photos
-          (product_id, imagem_base64, ordem, estoque)
-         VALUES ($1, $2, $3, $4)`,
-        [
-          req.params.id,
-          fotosFinais[i].imagem,
-          i,
-          fotosFinais[i].estoque
-        ]
-      );
-    }
+  await pool.query(
+    `INSERT INTO product_photos
+      (product_id, imagem_base64, ordem, estoque, tamanho)
+     VALUES ($1, $2, $3, $4, $5)`,
+    [
+      req.params.id,
+      fotosFinais[i].imagem,
+      i,
+      fotosFinais[i].estoque,
+      fotosFinais[i].tamanho
+    ]
+  );
+}
 
     const fotosAtualizadas = await pool.query(
-      `SELECT id, imagem_base64 AS url, ordem, estoque
-       FROM product_photos
-       WHERE product_id = $1
-       ORDER BY ordem`,
-      [req.params.id]
-    );
+  `SELECT id, imagem_base64 AS url, ordem, estoque, tamanho
+   FROM product_photos
+   WHERE product_id = $1
+   ORDER BY ordem`,
+  [req.params.id]
+);
 
     res.json({
       ...result.rows[0],
