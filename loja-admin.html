@@ -698,17 +698,18 @@ function editarProduto(id) {
   document.getElementById('estoque').value = produto.estoque;
 
   fotosProduto = Array.isArray(produto.fotos)
-    ? produto.fotos.map(foto => ({
-        imagem: foto.url || foto.imagem_base64,
-        estoque: Number(foto.estoque) || 0
-      }))
-    : [];
+  ? produto.fotos.map(foto => ({
+      imagem: foto.url || foto.imagem_base64,
+      estoque: Number(foto.estoque) || 0,
+      tamanho: foto.tamanho || ''
+    }))
+  : [];
 
   if (fotosProduto.length === 0 && produto.foto_url) {
   fotosProduto = [{
     imagem: produto.foto_url,
     estoque: 0,
-    tamanho: ''
+    tamanho: produto.tamanho || ''
   }];
 }
 
