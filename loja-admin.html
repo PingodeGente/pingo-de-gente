@@ -688,13 +688,14 @@ function editarProduto(id) {
   }
 
   produtoEmEdicao = id;
-
+  
   document.getElementById('nome').value = produto.nome;
   document.getElementById('codigo').value = produto.codigo;
   document.getElementById('categoria').value = produto.categoria;
+  document.getElementById('tamanho').value = produto.tamanho || '';
   document.getElementById('precoReal').value = Number(produto.preco_real);
   document.getElementById('precoPromocional').value =
-    Number(produto.preco_promocional);
+  Number(produto.preco_promocional);
   document.getElementById('estoque').value = produto.estoque;
 
   fotosProduto = Array.isArray(produto.fotos)
