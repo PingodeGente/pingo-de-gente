@@ -692,8 +692,7 @@ function editarProduto(id) {
   document.getElementById('nome').value = produto.nome;
   document.getElementById('codigo').value = produto.codigo;
   document.getElementById('categoria').value = produto.categoria;
-  document.getElementById('tamanhoProduto').value =  produto.tamanho || produto.fotos?.[0]?.tamanho || '';
-  document.getElementById('precoReal').value = Number(produto.preco_real);
+    document.getElementById('precoReal').value = Number(produto.preco_real);
   document.getElementById('precoPromocional').value =  Number(produto.preco_promocional);
   document.getElementById('estoque').value = produto.estoque;
 
