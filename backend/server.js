@@ -245,20 +245,20 @@ app.post('/api/produtos', verificarAdmin, async (req, res) => {
 
     const codigoFinal = await gerarCodigoUnico();
 
-    const result = await pool.query(
-      `INSERT INTO products
-        (nome, codigo, categoria, preco_real, preco_promocional, foto_url, ativo)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, true)
-       RETURNING *`,
-      [
-        nome,
-        codigoFinal,
-        categoria,
-        precoReal,
-        precoPromocional,
-        fotoUrl || null
-      ]
-    );
+const result = await pool.query(
+  `INSERT INTO products
+    (nome, codigo, categoria, preco_real, preco_promocional, foto_url, ativo)
+   VALUES ($1, $2, $3, $4, $5, $6, true)
+   RETURNING *`,
+  [
+    nome,
+    codigoFinal,
+    categoria,
+    precoReal,
+    precoPromocional,
+    fotoUrl || null
+  ]
+);
 const produtoId = result.rows[0].id;
 
 const fotosParaSalvar = Array.isArray(req.body.fotos)
