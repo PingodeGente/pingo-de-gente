@@ -442,7 +442,7 @@ function renderizarFotos() {
 
   const campoTamanho = document.createElement('input');
   campoTamanho.type = 'text';
-  campoTamanho.value = foto.tamanho || '1';
+  campoTamanho.value = foto.tamanho || '';
   campoTamanho.placeholder = 'Tamanho ';
   campoTamanho.style.cssText = 'width:100px;margin-top:6px;padding:6px;border:1px solid #ccc;border-radius:8px;text-align:center;';
 
@@ -523,7 +523,7 @@ const dados = {
   fotoUrl: fotosProduto[0]?.imagem || null,
   fotos: fotosProduto.map(foto => ({
     imagem: foto.imagem,
-    estoque: Number(foto.estoque) || 0,
+    estoque: Number(foto.estoque) || 1,
     tamanho: foto.tamanho || ''
   }))
 };
@@ -696,7 +696,7 @@ function editarProduto(id) {
   fotosProduto = Array.isArray(produto.fotos)
   ? produto.fotos.map(foto => ({
       imagem: foto.url || foto.imagem_base64,
-      estoque: Number(foto.estoque) || 0,
+      estoque: Number(foto.estoque) || 1,
       tamanho: foto.tamanho || ''
     }))
   : [];
