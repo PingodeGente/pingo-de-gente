@@ -3481,11 +3481,11 @@ renderCart() {
 
                     return `
                         <div class="cart-item" data-cart-item="${item.id}">
-                            
-    class="cart-item-img ${item.imagem ? '' : `placeholder-img ${item.category}`}"
-    style="width:72px; height:72px; flex:0 0 72px; overflow:hidden; border-radius:10px;"
->
-    ${item.imagem
+    <div
+        class="cart-item-img ${item.imagem ? '' : `placeholder-img ${item.category}`}"
+        style="width:72px; height:72px; flex:0 0 72px; overflow:hidden; border-radius:10px;"
+    >
+        ${item.imagem
         ? `
             <img
                 src="${item.imagem}"
