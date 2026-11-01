@@ -845,13 +845,21 @@
             100% { opacity: 0; transform: scale(0.8); }
         }
 
-        .product-img {
-            width: 100%;
-            height: 180px;
-            position: relative;
-            overflow: hidden;
-        }
+        ..product-img {
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: visible;
+}
 
+.product-img > img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+}
         .product-img .placeholder-img {
             width: 100%;
             height: 100%;
@@ -3226,7 +3234,30 @@ carregarProdutosDoBanco();
         this.handleAddToCart(productId, fotoIndex);
     });
 });
+grid.querySelectorAll('.miniatura-foto').forEach(mini => {
+    mini.addEventListener('click', (e) => {
+        e.stopPropagation();
 
+        const productId = mini.dataset.produto;
+        const fotoIndex = Number(mini.dataset.foto);
+
+        const principal = document.getElementById(`fotoPrincipal-${productId}`);
+        const produto = ProductService.getById(productId);
+
+        if (principal && produto && produto.fotos && produto.fotos[fotoIndex]) {
+            principal.src = produto.fotos[fotoIndex].url;
+        }
+
+        grid.querySelectorAll(`.miniatura-foto[data-produto="${productId}"]`).forEach(item => {
+            item.style.border = '2px solid transparent';
+        });
+
+        mini.style.border = '2px solid #00a651';
+
+        window.fotoSelecionada = window.fotoSelecionada || {};
+        window.fotoSelecionada[productId] = fotoIndex;
+    });
+});
                 grid.querySelectorAll('.product-card').forEach(card => {
                     card.addEventListener('click', () => {
                       const productId = card.dataset.productId;
