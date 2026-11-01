@@ -3259,113 +3259,131 @@ carregarProdutosDoBanco();
 },
             
 showProductModal(productId) {
-  const product = ProductService.getById(productId);
-  if (!product) return;
+    const product = ProductService.getById(productId);
+    if (!product) return;
 
-  let fotoSelecionada = product.fotos && product.fotos.length > 0
-    ? product.fotos[0]
-    : null;
+    let fotoIndex = 0;
 
-  const fotosHtml = product.fotos && product.fotos.length > 0
-    ? `
-      <div style="display:flex; gap:8px; overflow-x:auto; margin:12px 0;">
-        ${product.fotos.map((foto, index) => `
-          <div
-            class="foto-selecionavel"
-            data-index="${index}"
-            style="cursor:pointer; text-align:center;"
-          >
-            <img
-              src="${foto.url}"
-              style="width:80px; height:80px; object-fit:cover; border-radius:10px; border:3px solid ${index === 0 ? '#00a8e8' : 'transparent'};"
-            >
-            <div style="font-size:11px; margin-top:4px;">
-              ${Number(foto.estoque) > 0
-                ? `${foto.estoque} un.`
-                : 'Esgotada'}
+    const fotos = product.fotos && product.fotos.length > 0
+        ? product.fotos
+        : [];
+
+    const renderFotos = () => {
+        return fotos.length > 0
+            ? `
+                <div id="fotosContainer" style="display:flex; gap:8px; overflow-x:auto; margin:12px 0;">
+                    ${fotos.map((foto, index) => `
+                        <div
+                            class="foto-selecionavel"
+                            data-index="${index}"
+                            style="cursor:pointer; text-align:center;"
+                        >
+                            <img
+                                src="${foto.url}"
+                                style="width:80px; height:80px; object-fit:cover; border-radius:10px; border:3px solid ${index === fotoIndex ? '#00a8e8' : 'transparent'};"
+                            >
+                            <div style="font-size:11px; margin-top:4px;">
+                                ${Number(foto.estoque) > 0
+                                    ? `${foto.estoque} un.`
+                                    : 'Esgotada'}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `
+            : '';
+    };
+
+    const getFotoSelecionada = () => {
+        return fotos.length > 0 ? fotos[fotoIndex] : null;
+    };
+
+    const renderStatus = () => {
+        const foto = getFotoSelecionada();
+        const estoque = foto ? Number(foto.estoque) : product.stock;
+
+        const status = estoque === 0
+            ? '🔥 Esgotada'
+            : estoque === 1
+                ? 'Última peça!'
+                : `✅ ${estoque} peças em estoque`;
+
+        const cor = estoque === 0
+            ? '#ff5722'
+            : estoque === 1
+                ? '#ff9800'
+                : '#4caf50';
+
+        const elemento = document.getElementById('estoqueFotoSelecionada');
+        if (elemento) {
+            elemento.textContent = status;
+            elemento.style.color = cor;
+        }
+    };
+
+    const discount = this.calculateDiscount(product.oldPrice, product.price);
+
+    this.showModal(
+        `${product.emoji} ${product.name}`,
+        `
+            <div id="fotosArea">${renderFotos()}</div>
+
+            <strong>Código:</strong> ${product.code}<br>
+
+            <div style="margin: 12px 0;">
+                <div style="font-size: 14px; color: #9e9e9e; text-decoration: line-through;">
+                    De R$ ${this.formatPrice(product.oldPrice)}
+                </div>
+                <div style="font-size: 28px; font-weight: 800; color: #00a651;">
+                    Por R$ ${this.formatPrice(product.price)}
+                </div>
+                <div style="display:inline-block; background:#ff1744; color:#fff; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:700; margin-top:4px;">
+                    -${discount}% OFF
+                </div>
             </div>
-          </div>
-        `).join('')}
-      </div>
-    `
-    : '';
 
-  const estoqueFotoSelecionada = fotoSelecionada
-    ? Number(fotoSelecionada.estoque)
-    : product.stock;
+            <strong>Tamanhos:</strong> ${product.sizes.join(', ')}<br>
+            <strong>Categoria:</strong>
+            ${product.category === 'masc' ? 'Masculino' : product.category === 'fem' ? 'Feminino' : 'Unissex'}<br>
+            <strong>Faixa:</strong>
+            ${product.range === 'bebe' ? 'Bebê' : product.range === 'infantil' ? 'Infantil' : 'Juvenil'}<br><br>
 
-  const stockStatus = estoqueFotoSelecionada === 0
-    ? '🔥 Esgotada'
-    : estoqueFotoSelecionada === 1
-      ? 'Última peça!'
-      : `✅ ${estoqueFotoSelecionada} peças em estoque`;
+            <strong id="estoqueFotoSelecionada">
+                ${getFotoSelecionada()
+                    ? (Number(getFotoSelecionada().estoque) === 0
+                        ? '🔥 Esgotada'
+                        : Number(getFotoSelecionada().estoque) === 1
+                            ? 'Última peça!'
+                            : `✅ ${getFotoSelecionada().estoque} peças em estoque`)
+                    : 'Sem fotos disponíveis'}
+            </strong>
+        `,
+        [
+            { label: 'Fechar', style: { background: '#e0e0e0', color: '#333' } },
+            {
+                label: 'Adicionar à Sacola',
+                onClick: () => this.handleAddToCart(productId, fotoIndex)
+            }
+        ]
+    );
 
-  const discount = this.calculateDiscount(product.oldPrice, product.price);
-
-  this.showModal(
-    `${product.emoji} ${product.name}`,
-    `
-      ${fotosHtml}
-
-      <strong>Código:</strong> ${product.code}<br>
-      <div style="margin: 12px 0;">
-        <div style="font-size: 14px; color: #9e9e9e; text-decoration: line-through;">
-          De R$ ${this.formatPrice(product.oldPrice)}
-        </div>
-        <div style="font-size: 28px; font-weight: 800; color: #00a651;">
-          Por R$ ${this.formatPrice(product.price)}
-        </div>
-        <div style="display:inline-block; background:#ff1744; color:#fff; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:700; margin-top:4px;">
-          -${discount}% OFF
-        </div>
-      </div>
-
-      <strong>Tamanhos:</strong> ${product.sizes.join(', ')}<br>
-      <strong>Categoria:</strong>
-      ${product.category === 'masc' ? 'Masculino' : product.category === 'fem' ? 'Feminino' : 'Unissex'}<br>
-      <strong>Faixa:</strong>
-      ${product.range === 'bebe' ? 'Bebê' : product.range === 'infantil' ? 'Infantil' : 'Juvenil'}<br><br>
-
-      <strong id="estoqueFotoSelecionada"
-        style="color:${estoqueFotoSelecionada === 0 ? '#ff5722' : estoqueFotoSelecionada === 1 ? '#ff9800' : '#4caf50'}">
-        ${stockStatus}
-      </strong>
-    `,
-    [
-      { label: 'Fechar', style: { background: '#e0e0e0', color: '#333' } },
-      {
-        label: 'Adicionar à Sacola',
-        onClick: () => this.handleAddToCart(productId, fotoSelecionada)
-      }
-    ]
-  );
-
-  setTimeout(() => {
+    // Ativa a troca de fotos
     document.querySelectorAll('.foto-selecionavel').forEach(item => {
-      item.addEventListener('click', () => {
-        const index = Number(item.dataset.index);
-        fotoSelecionada = product.fotos[index];
+        item.addEventListener('click', () => {
+            fotoIndex = Number(item.dataset.index);
 
-        document.querySelectorAll('.foto-selecionavel img').forEach(img => {
-          img.style.border = '3px solid transparent';
+            document.getElementById('fotosArea').innerHTML = renderFotos();
+            renderStatus();
+
+            document.querySelectorAll('.foto-selecionavel').forEach(novoItem => {
+                novoItem.addEventListener('click', () => {
+                    fotoIndex = Number(novoItem.dataset.index);
+                    document.getElementById('fotosArea').innerHTML = renderFotos();
+                    renderStatus();
+                });
+            });
         });
-
-        item.querySelector('img').style.border = '3px solid #00a8e8';
-
-        const estoque = Number(fotoSelecionada.estoque);
-        const status = document.getElementById('estoqueFotoSelecionada');
-
-        status.textContent = estoque === 0
-          ? '🔥 Esgotada'
-          : estoque === 1
-            ? 'Última peça!'
-            : `✅ ${estoque} peças em estoque`;
-
-        status.style.color =
-          estoque === 0 ? '#ff5722' : estoque === 1 ? '#ff9800' : '#4caf50';
-      });
     });
-  }, 0);
 },
             renderCart() {
                 const container = document.getElementById('cartContent');
