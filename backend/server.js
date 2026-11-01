@@ -332,7 +332,6 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
            categoria = $3,
            preco_real = $4,
            preco_promocional = $5,
-           estoque = $6,
            foto_url = $7,
            ativo = true
        WHERE id = $8
