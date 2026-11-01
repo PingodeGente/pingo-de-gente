@@ -3235,7 +3235,7 @@ carregarProdutosDoBanco();
                 });
             },
 
-         async handleAddToCart(productId, fotoIndex) {
+            async handleAddToCart(productId) {
                 const token = sessionStorage.getItem('authToken');
                 const storedUser = sessionStorage.getItem('usuarioLogado');
 
@@ -3385,7 +3385,8 @@ showProductModal(productId) {
         });
     });
 },
-            renderCart() {
+  
+renderCart() {
                 const container = document.getElementById('cartContent');
                 const items = CartService.getItems();
                 const totalItems = CartService.getTotalItems();
