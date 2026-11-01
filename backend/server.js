@@ -233,7 +233,6 @@ app.post('/api/produtos', verificarAdmin, async (req, res) => {
       categoria,
       precoReal,
       precoPromocional,
-      estoque,
       fotoUrl
     } = req.body;
 
@@ -325,28 +324,27 @@ app.put('/api/produtos/:id', verificarAdmin, async (req, res) => {
   : [];
     const fotoPrincipal = fotosFinais[0]?.imagem || fotoUrl || null;
 
-    const result = await pool.query(
-      `UPDATE products
-       SET nome = $1,
-           codigo = $2,
-           categoria = $3,
-           preco_real = $4,
-           preco_promocional = $5,
-           foto_url = $7,
-           ativo = true
-       WHERE id = $8
-       RETURNING *`,
-      [
-        nome,
-        codigo,
-        categoria,
-        precoReal,
-        precoPromocional,
-        estoque,
-        fotoPrincipal,
-        req.params.id
-      ]
-    );
+   const result = await pool.query(
+  `UPDATE products
+   SET nome = $1,
+       codigo = $2,
+       categoria = $3,
+       preco_real = $4,
+       preco_promocional = $5,
+       foto_url = $6,
+       ativo = true
+   WHERE id = $7
+   RETURNING *`,
+  [
+    nome,
+    codigo,
+    categoria,
+    precoReal,
+    precoPromocional,
+    fotoPrincipal,
+    req.params.id
+  ]
+);
 
     if (result.rowCount === 0) {
       return res.status(404).json({
