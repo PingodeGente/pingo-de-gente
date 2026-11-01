@@ -3219,12 +3219,13 @@ carregarProdutosDoBanco();
 
                 // Adiciona event listeners
                 grid.querySelectorAll('[data-add-cart]').forEach(btn => {
-                   btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const productId = btn.dataset.addCart;
-                    const fotoIndex = window.fotoSelecionada?.[productId] || 0;
-                    this.handleAddToCart(productId, fotoIndex);
-                });
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const productId = btn.dataset.addCart;
+        const fotoIndex = window.fotoSelecionada?.[productId] || 0;
+        this.handleAddToCart(productId, fotoIndex);
+    });
+});
 
                 grid.querySelectorAll('.product-card').forEach(card => {
                     card.addEventListener('click', () => {
@@ -3234,7 +3235,7 @@ carregarProdutosDoBanco();
                 });
             },
 
-            async handleAddToCart(productId) {
+         async handleAddToCart(productId, fotoIndex) {
                 const token = sessionStorage.getItem('authToken');
                 const storedUser = sessionStorage.getItem('usuarioLogado');
 
