@@ -2847,7 +2847,7 @@ foto: produto.fotos && produto.fotos.length > 0 ? produto.fotos[0].url : null,
   foto.estoque = (Number(foto.estoque) || 0) - 1;
 
   return { success: true };
-}
+},
 
             remove(productId) {
                 const item = this.items.find(i => i.id === productId);
