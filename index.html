@@ -3570,16 +3570,28 @@ renderCart() {
                     });
                 });
 
-                container.querySelectorAll('[data-remove]').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const id = parseInt(btn.dataset.remove);
-                        CartService.remove(id);
-                        this.renderCart();
-                        this.renderProducts();
-                        this.updateCartBadge();
-                        this.showToast('🔄 Item removido', 'info');
-                    });
-                });
+               container.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const id = btn.dataset.remove;
+        const fotoIndex = Number(btn.dataset.fotoIndex ?? 0);
+
+        const result = CartService.remove(id, fotoIndex);
+
+        if (!result?.success) {
+            this.showToast(
+                result?.message || 'Não foi possível remover o item.',
+                'warning'
+            );
+            return;
+        }
+
+        this.renderCart();
+        this.updateCartBadge();
+        this.renderProducts();
+
+        this.showToast('🔄 Item removido', 'info');
+    });
+});
 
                 document.getElementById('btnCheckout')?.addEventListener('click', () => {
                     this.handleCheckout();
