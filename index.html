@@ -3270,7 +3270,7 @@ grid.querySelectorAll('.miniatura-foto').forEach(mini => {
                 });
             },
 
-            async handleAddToCart(productId) {
+            async handleAddToCart(productId, fotoIndex = 0) {
                 const token = sessionStorage.getItem('authToken');
                 const storedUser = sessionStorage.getItem('usuarioLogado');
 
