@@ -2860,17 +2860,35 @@ foto: produto.fotos && produto.fotos.length > 0 ? produto.fotos[0].url : null,
   return { success: true };
 },
 
-            remove(productId) {
-                const item = this.items.find(i => i.id === productId);
-                if (!item) return;
+           remove(productId, fotoIndex = 0) {
+    const index = this.items.findIndex(item =>
+        String(item.id) === String(productId) &&
+        Number(item.fotoIndex ?? 0) === Number(fotoIndex)
+    );
 
-                const product = ProductService.getById(productId);
-                if (product) {
-                    product.stock += item.qty;
-                }
+    if (index === -1) {
+        return {
+            success: false,
+            message: 'Item não encontrado na sacola.'
+        };
+    }
 
-                this.items = this.items.filter(i => i.id !== productId);
-            },
+    const item = this.items[index];
+    const product = ProductService.getById(productId);
+    const foto = product?.fotos?.[Number(item.fotoIndex ?? 0)];
+
+    if (foto) {
+        foto.estoque =
+            (Number(foto.estoque) || 0) + (Number(item.qty) || 0);
+    } else if (product) {
+        product.stock =
+            (Number(product.stock) || 0) + (Number(item.qty) || 0);
+    }
+
+    this.items.splice(index, 1);
+
+    return { success: true };
+},
 
             updateQty(productId, delta) {
                 const item = this.items.find(i => i.id === productId);
