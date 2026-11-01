@@ -2801,36 +2801,53 @@ foto: produto.fotos && produto.fotos.length > 0 ? produto.fotos[0].url : null,
         const CartService = {
             items: [],
 
-            add(productId, size) {
-                const product = ProductService.getById(productId);
-                if (!product || product.stock <= 0) {
-                    return { success: false, message: 'Produto indisponível' };
-                }
+           add(productId, fotoIndex = 0) {
+  const product = ProductService.getById(productId);
 
-                const existing = this.items.find(item => item.id === productId);
-                
-                if (existing) {
-                    if (existing.qty >= product.stock) {
-                        return { success: false, message: 'Estoque máximo atingido' };
-                    }
-                    existing.qty++;
-                } else {
-                    this.items.push({
-                        id: product.id,
-                        code: product.code,
-                        name: product.name,
-                        price: product.price,
-                        oldPrice: product.oldPrice,
-                        emoji: product.emoji,
-                        category: product.category,
-                        selectedSize: size || product.sizes[0],
-                        qty: 1
-                    });
-                }
+  if (!product) {
+    return { success: false, message: 'Produto não encontrado.' };
+  }
 
-                product.stock--;
-                return { success: true };
-            },
+  const fotos = product.fotos || [];
+  const foto = fotos[fotoIndex];
+
+  if (!foto) {
+    return { success: false, message: 'Selecione uma foto disponível.' };
+  }
+
+  if ((Number(foto.estoque) || 0) <= 0) {
+    return { success: false, message: 'Esta peça está indisponível.' };
+  }
+
+  const existing = this.items.find(
+    item => item.id === productId && item.fotoIndex === fotoIndex
+  );
+
+  if (existing) {
+    if (existing.qty >= (Number(foto.estoque) || 0)) {
+      return { success: false, message: 'Estoque máximo atingido.' };
+    }
+    existing.qty++;
+  } else {
+    this.items.push({
+      id: product.id,
+      fotoIndex,
+      imagem: foto.url,
+      code: product.code,
+      name: product.name,
+      price: product.price,
+      oldPrice: product.oldPrice,
+      emoji: product.emoji,
+      category: product.category,
+      selectedSize: foto.tamanho || '',
+      qty: 1
+    });
+  }
+
+  foto.estoque = (Number(foto.estoque) || 0) - 1;
+
+  return { success: true };
+}
 
             remove(productId) {
                 const item = this.items.find(i => i.id === productId);
@@ -3142,13 +3159,29 @@ carregarProdutosDoBanco();
           <div class="product-img">
   ${
     p.fotos && p.fotos.length > 0
-      ? `<div style="display:flex; overflow-x:auto; height:100%; gap:6px;">
-            ${p.fotos.map(foto => `
-              <img src="${foto.url}"
-                   alt="${p.name}"
-                   style="height:100%; width:auto; object-fit:cover;">
-            `).join('')}
-         </div>`
+      ? `
+        <img id="fotoPrincipal-${p.id}"
+             src="${p.fotos[0].url}"
+             alt="${p.name}"
+             style="width:100%; height:100%; object-fit:cover;">
+
+        ${
+          p.fotos.length > 1
+            ? `<div style="display:flex; gap:6px; overflow-x:auto; padding:6px;">
+                ${p.fotos.map((foto, index) => `
+                  <img src="${foto.url}"
+                       alt="${p.name} - opção ${index + 1}"
+                       data-produto="${p.id}"
+                       data-foto="${index}"
+                       class="miniatura-foto"
+                       style="width:48px; height:48px; object-fit:cover;
+                              border-radius:8px; cursor:pointer;
+                              border:2px solid ${index === 0 ? '#00a651' : 'transparent'};">
+                `).join('')}
+              </div>`
+            : ''
+        }
+      `
       : `<div class="placeholder-img ${p.category}">
             ${p.emoji}
          </div>`
@@ -3186,11 +3219,11 @@ carregarProdutosDoBanco();
 
                 // Adiciona event listeners
                 grid.querySelectorAll('[data-add-cart]').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const productId = btn.dataset.addCart;
-                        this.handleAddToCart(productId);
-                    });
+                   btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const productId = btn.dataset.addCart;
+                    const fotoIndex = window.fotoSelecionada?.[productId] || 0;
+                    this.handleAddToCart(productId, fotoIndex);
                 });
 
                 grid.querySelectorAll('.product-card').forEach(card => {
@@ -3211,7 +3244,7 @@ carregarProdutosDoBanco();
                 return;
             }
 
-            const result = CartService.add(productId);
+           const result = CartService.add(productId, fotoIndex);
 
             if (result.success) {
                 const product = ProductService.getById(productId);
