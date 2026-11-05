@@ -3923,8 +3923,20 @@ const abrirWhatsAppComPagamento = (formaPagamento) => {
         '_blank',
         'noopener,noreferrer'
     );
-};
 
+    CartService.clearCart();
+    UI.updateCartBadge();
+
+    if (typeof UI.renderCart === 'function') {
+        UI.renderCart();
+    }
+
+    Navigation.navigateTo('catalogo');
+
+    setTimeout(() => {
+        window.location.reload();
+    }, 500);
+};
 this.showModal(
     'Forma de pagamento',
     'Como você pretende pagar pela reserva?',
