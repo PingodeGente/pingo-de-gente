@@ -3977,87 +3977,7 @@ const nome = nomeDoPerfil || nomeDoCadastro;
                     }
                 }
 
-                const mostrarOpcoes = () => {
-                    const avisoFotos = fotosNaoPreparadas > 0
-                        ? `
-                            <p style="color:#a65f00;">
-                                Não foi possível preparar
-                                ${fotosNaoPreparadas}
-                                foto(s). Confira antes de enviar.
-                            </p>
-                        `
-                        : '';
-
-                    this.showModal(
-                        'Enviar reserva',
-                        `
-                            <p>
-                                Primeiro, envie o texto da reserva
-                                para o WhatsApp da loja.
-                            </p>
-
-                            <p>
-                                Depois, use “Compartilhar fotos”
-                                e escolha o WhatsApp e o mesmo
-                                contato da loja.
-                            </p>
-
-                            <p>
-                                Fotos preparadas:
-                                <strong>${arquivosFotos.length}</strong>
-                            </p>
-
-                            ${avisoFotos}
-
-                            <p>
-                                Sua sacola será mantida.
-                                Abrir o WhatsApp não confirma o envio.
-                            </p>
-                        `,
-                        [
-                            {
-                                label: 'Enviar texto no WhatsApp',
-                                onClick: () => {
-                                    window.open(
-                                        whatsappUrl,
-                                        '_blank',
-                                        'noopener,noreferrer'
-                                    );
-
-                                    mostrarOpcoes();
-                                }
-                            },
-                            {
-                                label: 'Compartilhar fotos',
-                                onClick: async () => {
-                                    if (arquivosFotos.length === 0) {
-                                        this.showToast(
-                                            'Nenhuma foto disponível para compartilhar.',
-                                            'warning'
-                                        );
-
-                                        mostrarOpcoes();
-                                        return;
-                                    }
-
-                                    const podeCompartilhar =
-                                        typeof navigator.share === 'function' &&
-                                        typeof navigator.canShare === 'function' &&
-                                        navigator.canShare({
-                                            files: arquivosFotos
-                                        });
-
-                                    if (!podeCompartilhar) {
-                                        this.showToast(
-                                            'Este navegador não permite compartilhar estas fotos. Tente pelo celular em um navegador atualizado.',
-                                            'warning'
-                                        );
-
-                                        mostrarOpcoes();
-                                        return;
-                                    }
-
-                                  const mensagemReserva =
+                const mensagemReserva =
     'Olá! Gostaria de finalizar esta reserva:\n\n' +
     'Produto: ' + produto.nome + '\n' +
     'Valor: ' + valorFormatado + '\n' +
@@ -4069,32 +3989,19 @@ const nome = nomeDoPerfil || nomeDoCadastro;
 
 const numeroWhatsApp = '5516991119843';
 
-const urlWhatsApp =
+const whatsappUrl =
     'https://wa.me/' +
     numeroWhatsApp +
     '?text=' +
     encodeURIComponent(mensagemReserva);
 
-setTimeout(() => {
-    window.open(urlWhatsApp, '_blank');
-}, 100);
-
-
-                        }
-                    },
-                    {
-                        label: 'Fechar',
-                        style: {
-                            background: '#e0e0e0',
-                            color: '#333'
-                        }
-                    }
-                ]
-            );
-        };
-                               
-                mostrarOpcoes();
-},
+window.open(
+    whatsappUrl,
+    '_blank',
+    'noopener,noreferrer'
+);
+},             
+            
 
             renderNotices() {
                 const container = document.getElementById('avisosContent');
