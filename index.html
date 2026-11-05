@@ -4057,19 +4057,15 @@ const nome = nomeDoPerfil || nomeDoCadastro;
                                         return;
                                     }
 
-                                    const mensagemReserva = `
-Olá! Gostaria de finalizar esta reserva:
-
-Produto: ${produto.nome}
-Foto: ${produtoFotoUrl}
-Valor: ${valorFormatado}
-Período: ${dataRetirada} a ${dataDevolucao}
-
-Dados do cliente:
-Nome: ${nome}
-Telefone: ${telefone}
-Endereço: ${rua}, ${numero} - ${bairro}, ${cidade}
-`.trim();
+                                  const mensagemReserva =
+    'Olá! Gostaria de finalizar esta reserva:\n\n' +
+    'Produto: ' + produto.nome + '\n' +
+    'Valor: ' + valorFormatado + '\n' +
+    'Período: ' + dataRetirada + ' a ' + dataDevolucao + '\n\n' +
+    'Dados do cliente:\n' +
+    'Nome: ' + nome + '\n' +
+    'Telefone: ' + telefone + '\n' +
+    'Endereço: ' + rua + ', ' + numero + ' - ' + bairro + ', ' + cidade;
 
 const numeroWhatsApp = '5516991119843';
 
@@ -4078,10 +4074,6 @@ const urlWhatsApp =
     numeroWhatsApp +
     '?text=' +
     encodeURIComponent(mensagemReserva);
-
-setTimeout(() => {
-    window.open(urlWhatsApp, '_blank');
-}, 100);
 
 setTimeout(() => {
     window.open(urlWhatsApp, '_blank');
