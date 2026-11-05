@@ -4670,6 +4670,15 @@ async function editarDadosUsuario(botao, usuarioId) {
   }
 }
 
+function escaparHtml(valor) {
+  return String(valor ?? '').replace(/[&<>"']/g, caractere => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[caractere]));
+}
 
 async function carregarUsuarios() {
     const tbody = document.getElementById('usuariosTableBody');
