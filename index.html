@@ -4079,19 +4079,28 @@ const urlWhatsApp =
     '?text=' +
     encodeURIComponent(mensagemReserva);
 
-window.open(urlWhatsApp, '_blank');
+setTimeout(() => {
+    window.open(urlWhatsApp, '_blank');
+}, 100);
+
+setTimeout(() => {
+    window.open(urlWhatsApp, '_blank');
+}, 100);
 
 mostrarOpcoes();
-                                label: 'Fechar',
-                                style: {
-                                    background: '#e0e0e0',
-                                    color: '#333'
-                                }
-                            }
-                        ]
-                    );
-                };
-
+                        }
+                    },
+                    {
+                        label: 'Fechar',
+                        style: {
+                            background: '#e0e0e0',
+                            color: '#333'
+                        }
+                    }
+                ]
+            );
+        };
+                               
                 mostrarOpcoes();
 },
 
