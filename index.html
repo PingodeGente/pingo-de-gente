@@ -3906,114 +3906,17 @@ const nome = nomeDoPerfil || nomeDoCadastro;
               if (orderId) { message = `📋 *Pedido:* ${orderId}\n\n` + message;}
 
                               const phone = '5516991119843';
-
-                const whatsappUrl =
-                    `https://api.whatsapp.com/send/?phone=${phone}` +
-                    `&text=${encodeURIComponent(message)}`;
-
-                // Guarda os dados das fotos desta reserva.
-                const fotosDaReserva = items.map(item => ({
-                    imagem: item.imagem,
-                    codigo: String(item.code || item.id),
-                    tamanho: String(item.selectedSize || ''),
-                    fotoIndex: Number(item.fotoIndex ?? 0)
-                }));
-
-                const arquivosFotos = [];
-                let fotosNaoPreparadas = 0;
-
-                // Prepara os arquivos antes de mostrar os botões.
-                for (const item of fotosDaReserva) {
-                    if (!item.imagem) {
-                        fotosNaoPreparadas++;
-                        continue;
-                    }
-
-                    try {
-                        const respostaFoto = await fetch(item.imagem);
-
-                        if (!respostaFoto.ok) {
-                            throw new Error('Não foi possível carregar a foto.');
-                        }
-
-                        const blob = await respostaFoto.blob();
-
-                        const extensoes = {
-                            'image/jpeg': 'jpg',
-                            'image/png': 'png',
-                            'image/webp': 'webp'
-                        };
-
-                        const extensao = extensoes[blob.type];
-
-                        if (!extensao) {
-                            throw new Error('Formato de foto não suportado.');
-                        }
-
-                        const nomeBase =
-                            `${item.codigo}-tam-${item.tamanho || 'sem-tamanho'}` +
-                            `-opcao-${item.fotoIndex + 1}`;
-
-                        const nomeSeguro = nomeBase.replace(
-                            /[^a-zA-Z0-9_-]/g,
-                            '_'
-                        );
-
-                        arquivosFotos.push(
-                            new File(
-                                [blob],
-                                `${nomeSeguro}.${extensao}`,
-                                { type: blob.type }
-                            )
-                        );
-                    } catch (error) {
-                        console.error(
-                            'Erro ao preparar foto da reserva:',
-                            item.codigo,
-                            error
-                        );
-
-                        fotosNaoPreparadas++;
-                    }
-                }
-
-                const mensagemReserva =
-    'Olá! Gostaria de finalizar esta reserva:\n\n' +
-    'Produto: ' + produto.nome + '\n' +
-    'Valor: ' + valorFormatado + '\n' +
-    'Período: ' + dataRetirada + ' a ' + dataDevolucao + '\n\n' +
-    'Dados do cliente:\n' +
-    'Nome: ' + nome + '\n' +
-    'Telefone: ' + telefone + '\n' +
-    'Endereço: ' + rua + ', ' + numero + ' - ' + bairro + ', ' + cidade;
-
-const numeroWhatsApp = '5516991119843';
-
-const whatsappUrl =
-    'https://wa.me/' +
-    numeroWhatsApp +
-    '?text=' +
-    encodeURIComponent(mensagemReserva);
-
 const abrirWhatsAppComPagamento = (formaPagamento) => {
-    const mensagemReserva =
-        'Olá! Gostaria de finalizar esta reserva:\n\n' +
-        'Produto: ' + produto.nome + '\n' +
-        'Valor: ' + valorFormatado + '\n' +
-        'Período: ' + dataRetirada + ' a ' + dataDevolucao + '\n\n' +
-        'Forma de pagamento: ' + formaPagamento + '\n\n' +
-        'Dados do cliente:\n' +
-        'Nome: ' + nome + '\n' +
-        'Telefone: ' + telefone + '\n' +
-        'Endereço: ' + rua + ', ' + numero + ' - ' + bairro + ', ' + cidade;
-
-    const numeroWhatsApp = '5516991119843';
+    const mensagemFinal =
+        message +
+        '\n\n💳 *Forma de pagamento:* ' +
+        formaPagamento;
 
     const whatsappUrl =
-        'https://wa.me/' +
-        numeroWhatsApp +
-        '?text=' +
-        encodeURIComponent(mensagemReserva);
+        'https://api.whatsapp.com/send/?phone=' +
+        phone +
+        '&text=' +
+        encodeURIComponent(mensagemFinal);
 
     window.open(
         whatsappUrl,
@@ -4040,7 +3943,7 @@ this.showModal(
         }
     ]
 );
-},        
+},             
             
 
             renderNotices() {
