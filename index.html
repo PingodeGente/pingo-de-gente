@@ -4669,85 +4669,120 @@ async function editarDadosUsuario(botao, usuarioId) {
     botao.textContent = textoOriginal;
   }
 }
-//retirar
-function escaparHtml(valor) {
-  return String(valor ?? '').replace(/[&<>"']/g, caractere => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-  }[caractere]));
-}
-//retirar
+
 
 async function carregarUsuarios() {
-  const tbody = document.getElementById('usuariosTableBody');
-  const token = getToken();
+    const tbody = document.getElementById('usuariosTableBody');
+    const token = getToken();
 
-  tbody.innerHTML = '<tr><td colspan="5">Carregando usuários...</td></tr>';
-
-  try {
-    const resposta = await fetch('https://pingo-de-gente.onrender.com/api/auth/users', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    const dados = await resposta.json();
-
-    if (!resposta.ok || !dados.ok) {
-      tbody.innerHTML = `<tr><td colspan="5">${dados.message || 'Erro ao carregar usuários.'}</td></tr>`;
-      return;
+    if (!tbody) {
+        console.error('Elemento usuariosTableBody não encontrado.');
+        return;
     }
 
-    if (!dados.users.length) {
-      tbody.innerHTML = '<tr><td colspan="5">Nenhum usuário cadastrado.</td></tr>';
-      return;
+    tbody.innerHTML =
+        '<tr><td colspan="5">Carregando usuários...</td></tr>';
+
+    try {
+        const resposta = await fetch(
+            'https://pingo-de-gente.onrender.com/api/auth/users',
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok || !dados.ok) {
+            tbody.innerHTML = '';
+
+            const linha = tbody.insertRow();
+            const celula = linha.insertCell();
+
+            celula.colSpan = 5;
+            celula.textContent =
+                dados.message || 'Erro ao carregar usuários.';
+
+            return;
+        }
+
+        if (!Array.isArray(dados.users)) {
+            throw new Error('O servidor não retornou uma lista de usuários.');
+        }
+
+        if (dados.users.length === 0) {
+            tbody.innerHTML =
+                '<tr><td colspan="5">Nenhum usuário cadastrado.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = dados.users.map(usuario => `
+            <tr>
+                <td>${escaparHtml(usuario.nome)}</td>
+                <td>${escaparHtml(usuario.email)}</td>
+                <td>${escaparHtml(usuario.role)}</td>
+
+                <td>
+                    <select id="perfil-${usuario.id}">
+                        <option
+                            value="cliente"
+                            ${usuario.role === 'cliente' ? 'selected' : ''}
+                        >
+                            Cliente
+                        </option>
+
+                        <option
+                            value="lojista"
+                            ${usuario.role === 'lojista' ? 'selected' : ''}
+                        >
+                            Lojista
+                        </option>
+
+                        <option
+                            value="admin"
+                            ${usuario.role === 'admin' ? 'selected' : ''}
+                        >
+                            Administrador
+                        </option>
+                    </select>
+                </td>
+
+                <td>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button
+                            type="button"
+                            onclick="editarDadosUsuario(this, '${usuario.id}')"
+                        >
+                            Editar dados
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="salvarPerfil('${usuario.id}')"
+                        >
+                            Salvar perfil
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+
+    } catch (error) {
+        console.error('Erro ao carregar ou exibir usuários:', error);
+
+        tbody.innerHTML = '';
+
+        const linha = tbody.insertRow();
+        const celula = linha.insertCell();
+
+        celula.colSpan = 5;
+        celula.textContent =
+            'Erro ao carregar ou exibir usuários: ' + error.message;
     }
-
-    tbody.innerHTML = dados.users.map(usuario => `
-      <tr>
-        <td>${escaparHtml(usuario.nome)}</td>
-        <td>${escaparHtml(usuario.email)}</td>
-        <td>${escaparHtml(usuario.role)}</td>
-
-        <td>
-          <select id="perfil-${usuario.id}">
-            <option value="cliente" ${usuario.role === 'cliente' ? 'selected' : ''}>Cliente</option>
-            <option value="lojista" ${usuario.role === 'lojista' ? 'selected' : ''}>Lojista</option>
-            <option value="admin" ${usuario.role === 'admin' ? 'selected' : ''}>Administrador</option>
-          </select>
-        </td>
-      <td>
-  <button
-    type="button"
-    onclick="editarDadosUsuario(this, '${usuario.id}')"  >    Editar dados
-  </button>
-
-  <button
-    type="button"  onclick="salvarPerfil('${usuario.id}')"  >    Salvar perfil
-  </button>
-</td>
-<td>
-  <button    type="button"    onclick="editarDadosUsuario(this, '${usuario.id}')"  >    Editar dados
-  </button>
-
-  <button
-    type="button"
-    onclick="salvarPerfil('${usuario.id}')"
-  >
-    Salvar perfil
-  </button>
-</td>
-
-      </tr>
-    `).join('');
-
-  } catch (error) {
-    tbody.innerHTML = '<tr><td colspan="5">Não foi possível conectar ao servidor.</td></tr>';
-  }
 }
+
 async function salvarPerfil(usuarioId) {
   const token = getToken();
   const select = document.getElementById(`perfil-${usuarioId}`);
