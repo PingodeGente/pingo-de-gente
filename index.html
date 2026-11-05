@@ -3800,10 +3800,25 @@ renderCart() {
     const token = sessionStorage.getItem('authToken');
     const storedUser = sessionStorage.getItem('usuarioLogado');
 
+
     if (!token || !storedUser) {
-        this.showToast('Faça login para finalizar o pedido.', 'warning');
+        this.showToast(
+            'Faça login para finalizar o pedido.',
+            'warning'
+        );
         this.showLoginScreen();
         return;
+    }
+
+    let usuarioLogado = {};
+
+    try {
+        usuarioLogado = JSON.parse(storedUser) || {};
+    } catch (error) {
+        console.error(
+            'Erro ao ler os dados do usuário logado:',
+            error
+        );
     }
 
     const items = CartService.getItems();
@@ -3812,7 +3827,16 @@ renderCart() {
         return;
     }
 
-                const nome = document.getElementById('inputNome').value.trim();
+                const nomeDoPerfil =
+    document.getElementById('inputNome')?.value?.trim() || '';
+
+const nomeDoCadastro =
+    typeof usuarioLogado.nome === 'string'
+        ? usuarioLogado.nome.trim()
+        : '';
+
+const nome = nomeDoPerfil || nomeDoCadastro;
+                
                 const telefone = document.getElementById('inputTelefone').value.trim();
                 const rua = document.getElementById('inputRua').value.trim();
                 const numero = document.getElementById('inputNumero').value.trim();
