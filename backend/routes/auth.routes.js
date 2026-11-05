@@ -418,14 +418,13 @@ router.get('/users', async (req, res) => {
   }
 });
 
-
 /*
-  PATCH /api/auth/users/:id/role
+  PATCH /api/auth/users/:id/dados
 
-  Altera o perfil de um usuário.
+  Altera nome e e-mail.
   Apenas administradores podem acessar.
 */
-router.patch('/users/:id/role', async (req, res) => {
+router.patch('/users/:id/dados', async (req, res) => {
   try {
     const authorization = req.headers.authorization || '';
     const token = authorization.startsWith('Bearer ')
@@ -450,12 +449,22 @@ router.patch('/users/:id/role', async (req, res) => {
       });
     }
 
+    if (!payload || typeof payload.sub !== 'string') {
+      return res.status(401).json({
+        ok: false,
+        message: 'Token sem identificação válida.'
+      });
+    }
+
     const adminCheck = await pool.query(
       'SELECT role FROM users WHERE id = $1',
       [payload.sub]
     );
 
-    if (adminCheck.rowCount === 0 || adminCheck.rows[0].role !== 'admin') {
+    if (
+      adminCheck.rowCount === 0 ||
+      adminCheck.rows[0].role !== 'admin'
+    ) {
       return res.status(403).json({
         ok: false,
         message: 'Acesso restrito a administradores.'
@@ -463,23 +472,44 @@ router.patch('/users/:id/role', async (req, res) => {
     }
 
     const { id } = req.params;
-    const { role } = req.body;
+    const { nome, email } = req.body || {};
 
-    const perfisPermitidos = ['cliente', 'lojista', 'admin'];
-
-    if (!perfisPermitidos.includes(role)) {
+    if (
+      typeof nome !== 'string' ||
+      typeof email !== 'string'
+    ) {
       return res.status(400).json({
         ok: false,
-        message: 'Perfil inválido.'
+        message: 'Informe nome e e-mail.'
+      });
+    }
+
+    const nomeLimpo = nome.trim();
+    const emailLimpo = email.trim();
+
+    if (!nomeLimpo || nomeLimpo.length > 200) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Informe um nome entre 1 e 200 caracteres.'
+      });
+    }
+
+    if (
+      emailLimpo.length > 254 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpo)
+    ) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Informe um e-mail válido.'
       });
     }
 
     const result = await pool.query(
       `UPDATE users
-       SET role = $1
-       WHERE id = $2
+       SET nome = $1, email = $2
+       WHERE id = $3
        RETURNING id, nome, email, role`,
-      [role, id]
+      [nomeLimpo, emailLimpo, id]
     );
 
     if (result.rowCount === 0) {
@@ -491,15 +521,29 @@ router.patch('/users/:id/role', async (req, res) => {
 
     return res.json({
       ok: true,
-      message: 'Perfil atualizado com sucesso.',
+      message: 'Dados atualizados com sucesso.',
       user: result.rows[0]
     });
   } catch (error) {
-    console.error('Erro ao atualizar perfil do usuário:', error.message);
+    console.error('Erro ao editar usuário:', error.message);
+
+    if (error.code === '23505') {
+      return res.status(409).json({
+        ok: false,
+        message: 'Já existe um cadastro com um desses dados únicos. Confira o e-mail.'
+      });
+    }
+
+    if (error.code === '22P02') {
+      return res.status(400).json({
+        ok: false,
+        message: 'Identificação do usuário inválida.'
+      });
+    }
 
     return res.status(500).json({
       ok: false,
-      message: 'Não foi possível atualizar o perfil.'
+      message: 'Não foi possível atualizar os dados.'
     });
   }
 });
