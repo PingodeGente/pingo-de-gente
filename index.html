@@ -3879,25 +3879,195 @@ renderCart() {
                 message += `📍 *Endereço:*\n${rua}, ${numero} - ${bairro}\n${cidade}\n\n`;
                 message += `Gostaria de confirmar a reserva para retirada na loja. Obrigado! 🧸`;
 
-                message = ` *RESERVA - PINGO DE GENTE*\n📋 *Pedido:* ${orderId}\n\n` + message;
+              if (orderId) { message = `📋 *Pedido:* ${orderId}\n\n` + message;}
 
-                const phone = '5516991119843';
-                const encodedMessage = encodeURIComponent(message);
-                const whatsappUrl = `https://api.whatsapp.com/send/?phone=${phone}&text=${encodedMessage}`;
-                
-                this.showToast('📱 Abrindo WhatsApp...', 'success');
-window.open(whatsappUrl, '_blank');
+                              const phone = '5516991119843';
 
-        // Limpa carrinho após checkout
-                    CartService.clear();
-                    this.updateCartBadge();
-                    this.updatePainel();
+                const whatsappUrl =
+                    `https://api.whatsapp.com/send/?phone=${phone}` +
+                    `&text=${encodeURIComponent(message)}`;
 
-                    if (typeof this.renderProducts === 'function') {
-                        this.renderProducts();
+                // Guarda os dados das fotos desta reserva.
+                const fotosDaReserva = items.map(item => ({
+                    imagem: item.imagem,
+                    codigo: String(item.code || item.id),
+                    tamanho: String(item.selectedSize || ''),
+                    fotoIndex: Number(item.fotoIndex ?? 0)
+                }));
+
+                const arquivosFotos = [];
+                let fotosNaoPreparadas = 0;
+
+                // Prepara os arquivos antes de mostrar os botões.
+                for (const item of fotosDaReserva) {
+                    if (!item.imagem) {
+                        fotosNaoPreparadas++;
+                        continue;
                     }
 
-               document.querySelector('[data-view="catalogo"]')?.click();
+                    try {
+                        const respostaFoto = await fetch(item.imagem);
+
+                        if (!respostaFoto.ok) {
+                            throw new Error('Não foi possível carregar a foto.');
+                        }
+
+                        const blob = await respostaFoto.blob();
+
+                        const extensoes = {
+                            'image/jpeg': 'jpg',
+                            'image/png': 'png',
+                            'image/webp': 'webp'
+                        };
+
+                        const extensao = extensoes[blob.type];
+
+                        if (!extensao) {
+                            throw new Error('Formato de foto não suportado.');
+                        }
+
+                        const nomeBase =
+                            `${item.codigo}-tam-${item.tamanho || 'sem-tamanho'}` +
+                            `-opcao-${item.fotoIndex + 1}`;
+
+                        const nomeSeguro = nomeBase.replace(
+                            /[^a-zA-Z0-9_-]/g,
+                            '_'
+                        );
+
+                        arquivosFotos.push(
+                            new File(
+                                [blob],
+                                `${nomeSeguro}.${extensao}`,
+                                { type: blob.type }
+                            )
+                        );
+                    } catch (error) {
+                        console.error(
+                            'Erro ao preparar foto da reserva:',
+                            item.codigo,
+                            error
+                        );
+
+                        fotosNaoPreparadas++;
+                    }
+                }
+
+                const mostrarOpcoes = () => {
+                    const avisoFotos = fotosNaoPreparadas > 0
+                        ? `
+                            <p style="color:#a65f00;">
+                                Não foi possível preparar
+                                ${fotosNaoPreparadas}
+                                foto(s). Confira antes de enviar.
+                            </p>
+                        `
+                        : '';
+
+                    this.showModal(
+                        'Enviar reserva',
+                        `
+                            <p>
+                                Primeiro, envie o texto da reserva
+                                para o WhatsApp da loja.
+                            </p>
+
+                            <p>
+                                Depois, use “Compartilhar fotos”
+                                e escolha o WhatsApp e o mesmo
+                                contato da loja.
+                            </p>
+
+                            <p>
+                                Fotos preparadas:
+                                <strong>${arquivosFotos.length}</strong>
+                            </p>
+
+                            ${avisoFotos}
+
+                            <p>
+                                Sua sacola será mantida.
+                                Abrir o WhatsApp não confirma o envio.
+                            </p>
+                        `,
+                        [
+                            {
+                                label: 'Enviar texto no WhatsApp',
+                                onClick: () => {
+                                    window.open(
+                                        whatsappUrl,
+                                        '_blank',
+                                        'noopener,noreferrer'
+                                    );
+
+                                    mostrarOpcoes();
+                                }
+                            },
+                            {
+                                label: 'Compartilhar fotos',
+                                onClick: async () => {
+                                    if (arquivosFotos.length === 0) {
+                                        this.showToast(
+                                            'Nenhuma foto disponível para compartilhar.',
+                                            'warning'
+                                        );
+
+                                        mostrarOpcoes();
+                                        return;
+                                    }
+
+                                    const podeCompartilhar =
+                                        typeof navigator.share === 'function' &&
+                                        typeof navigator.canShare === 'function' &&
+                                        navigator.canShare({
+                                            files: arquivosFotos
+                                        });
+
+                                    if (!podeCompartilhar) {
+                                        this.showToast(
+                                            'Este navegador não permite compartilhar estas fotos. Tente pelo celular em um navegador atualizado.',
+                                            'warning'
+                                        );
+
+                                        mostrarOpcoes();
+                                        return;
+                                    }
+
+                                    try {
+                                        // A chamada ocorre diretamente
+                                        // no clique, com arquivos já prontos.
+                                        await navigator.share({
+                                            files: arquivosFotos
+                                        });
+                                    } catch (error) {
+                                        if (error.name !== 'AbortError') {
+                                            console.error(
+                                                'Erro ao compartilhar fotos:',
+                                                error
+                                            );
+
+                                            this.showToast(
+                                                'Não foi possível compartilhar as fotos neste dispositivo.',
+                                                'warning'
+                                            );
+                                        }
+                                    } finally {
+                                        mostrarOpcoes();
+                                    }
+                                }
+                            },
+                            {
+                                label: 'Fechar',
+                                style: {
+                                    background: '#e0e0e0',
+                                    color: '#333'
+                                }
+                            }
+                        ]
+                    );
+                };
+
+                mostrarOpcoes();
 },
 
             renderNotices() {
