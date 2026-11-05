@@ -4057,30 +4057,31 @@ const nome = nomeDoPerfil || nomeDoCadastro;
                                         return;
                                     }
 
-                                    try {
-                                        // A chamada ocorre diretamente
-                                        // no clique, com arquivos já prontos.
-                                        await navigator.share({
-                                            files: arquivosFotos
-                                        });
-                                    } catch (error) {
-                                        if (error.name !== 'AbortError') {
-                                            console.error(
-                                                'Erro ao compartilhar fotos:',
-                                                error
-                                            );
+                                    const mensagemReserva = `
+Olá! Gostaria de finalizar esta reserva:
 
-                                            this.showToast(
-                                                'Não foi possível compartilhar as fotos neste dispositivo.',
-                                                'warning'
-                                            );
-                                        }
-                                    } finally {
-                                        mostrarOpcoes();
-                                    }
-                                }
-                            },
-                            {
+Produto: ${produto.nome}
+Foto: ${produtoFotoUrl}
+Valor: ${valorFormatado}
+Período: ${dataRetirada} a ${dataDevolucao}
+
+Dados do cliente:
+Nome: ${nome}
+Telefone: ${telefone}
+Endereço: ${rua}, ${numero} - ${bairro}, ${cidade}
+`.trim();
+
+const numeroWhatsApp = '5516991119843';
+
+const urlWhatsApp =
+    'https://wa.me/' +
+    numeroWhatsApp +
+    '?text=' +
+    encodeURIComponent(mensagemReserva);
+
+window.open(urlWhatsApp, '_blank');
+
+mostrarOpcoes();
                                 label: 'Fechar',
                                 style: {
                                     background: '#e0e0e0',
