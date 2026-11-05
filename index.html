@@ -3995,12 +3995,52 @@ const whatsappUrl =
     '?text=' +
     encodeURIComponent(mensagemReserva);
 
-window.open(
-    whatsappUrl,
-    '_blank',
-    'noopener,noreferrer'
+const abrirWhatsAppComPagamento = (formaPagamento) => {
+    const mensagemReserva =
+        'Olá! Gostaria de finalizar esta reserva:\n\n' +
+        'Produto: ' + produto.nome + '\n' +
+        'Valor: ' + valorFormatado + '\n' +
+        'Período: ' + dataRetirada + ' a ' + dataDevolucao + '\n\n' +
+        'Forma de pagamento: ' + formaPagamento + '\n\n' +
+        'Dados do cliente:\n' +
+        'Nome: ' + nome + '\n' +
+        'Telefone: ' + telefone + '\n' +
+        'Endereço: ' + rua + ', ' + numero + ' - ' + bairro + ', ' + cidade;
+
+    const numeroWhatsApp = '5516991119843';
+
+    const whatsappUrl =
+        'https://wa.me/' +
+        numeroWhatsApp +
+        '?text=' +
+        encodeURIComponent(mensagemReserva);
+
+    window.open(
+        whatsappUrl,
+        '_blank',
+        'noopener,noreferrer'
+    );
+};
+
+this.showModal(
+    'Forma de pagamento',
+    'Como você pretende pagar pela reserva?',
+    [
+        {
+            label: 'Cartão',
+            onClick: () => abrirWhatsAppComPagamento('Cartão')
+        },
+        {
+            label: 'Dinheiro',
+            onClick: () => abrirWhatsAppComPagamento('Dinheiro')
+        },
+        {
+            label: 'Pix',
+            onClick: () => abrirWhatsAppComPagamento('Pix')
+        }
+    ]
 );
-},             
+},        
             
 
             renderNotices() {
