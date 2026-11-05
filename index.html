@@ -3906,7 +3906,8 @@ const nome = nomeDoPerfil || nomeDoCadastro;
               if (orderId) { message = `📋 *Pedido:* ${orderId}\n\n` + message;}
 
                               const phone = '5516991119843';
-const abrirWhatsAppComPagamento = (formaPagamento) => {
+
+  const abrirWhatsAppComPagamento = (formaPagamento) => {
     const mensagemFinal =
         message +
         '\n\n💳 *Forma de pagamento:* ' +
@@ -3937,6 +3938,7 @@ const abrirWhatsAppComPagamento = (formaPagamento) => {
         window.location.reload();
     }, 500);
 };
+
 this.showModal(
     'Forma de pagamento',
     'Como você pretende pagar pela reserva?',
@@ -3955,7 +3957,7 @@ this.showModal(
         }
     ]
 );
-},             
+},       
             
 
             renderNotices() {
