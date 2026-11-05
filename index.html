@@ -3218,19 +3218,19 @@ carregarProdutosDoBanco();
                     const discount = this.calculateDiscount(p.oldPrice, p.price);
 
                   return `
-    <div class="product-card" data-product-id="${p.id}">
-        <div class="product-img">
-  ${
-    p.fotos && p.fotos.length > 0
-      ? `
-        <img id="fotoPrincipal-${p.id}"
-     class="foto-principal"
-     src="${p.fotos[0].url}"
-     alt="${p.name}">
+                    <div class="product-card" data-product-id="${p.id}">
+                    <div class="product-img">
+                ${
+                    p.fotos && p.fotos.length > 0
+                    ? `
+                        <img id="fotoPrincipal-${p.id}"
+                    class="foto-principal"
+                    src="${p.fotos[0].url}"
+                    alt="${p.name}">
 
-        ${
-          p.fotos.length > 1
-            ? `<div style="display:flex; gap:6px; overflow-x:auto; padding:6px;">
+                    ${
+                 p.fotos.length > 1
+                 ? `<div style="display:flex; gap:6px; overflow-x:auto; padding:6px;">
                 ${p.fotos.map((foto, index) => `
                   <img src="${foto.url}"
                        alt="${p.name} - opção ${index + 1}"
@@ -3260,10 +3260,17 @@ carregarProdutosDoBanco();
                                         </svg>
                                         ${p.code}
                                     </div>
-                                    <div class="product-sizes">Tam: <span>${p.sizes.join(', ')}</span></div>
+                                   <div class="product-sizes">    Tam: <span class="tamanho-foto">—</span></div>
                                 </div>
                                 <div class="product-name">${p.name}</div>
+                                <div
+                                    class="estoque-foto"
+                                    aria-live="polite"
+                                    style="font-size:13px; font-weight:600; margin:6px 0;"
+                                ></div>
+
                                 <div class="product-price-container">
+
                                     <span class="product-price-old">
                                         <span class="label">De R$</span> ${this.formatPrice(p.oldPrice)}
                                     </span>
@@ -3281,41 +3288,153 @@ carregarProdutosDoBanco();
                 }).join('');
 
                 // Adiciona event listeners
+                // Mantém a foto selecionada de cada produto.
+                window.fotoSelecionada = window.fotoSelecionada || {};
+
+                const atualizarOpcaoDoCard = (card, indiceInformado) => {
+                    const productId = card.dataset.productId;
+                    const produto = ProductService.getById(productId);
+
+                    if (!produto) return;
+
+                    const fotos = Array.isArray(produto.fotos)
+                        ? produto.fotos
+                        : [];
+
+                    const indice = Number(indiceInformado);
+
+                    const fotoIndex =
+                        Number.isInteger(indice) &&
+                        indice >= 0 &&
+                        indice < fotos.length
+                            ? indice
+                            : 0;
+
+                    const foto = fotos[fotoIndex];
+
+                    window.fotoSelecionada[productId] = fotoIndex;
+
+                    // Atualiza a foto principal.
+                    const principal = card.querySelector('.foto-principal');
+
+                    if (principal && foto) {
+                        principal.src = foto.url;
+                    }
+
+                    // Destaca a miniatura escolhida.
+                    card.querySelectorAll('.miniatura-foto').forEach(mini => {
+                        const selecionada =
+                            Number(mini.dataset.foto) === fotoIndex;
+
+                        mini.style.border = selecionada
+                            ? '2px solid #00a651'
+                            : '2px solid transparent';
+                    });
+
+                    // Atualiza o tamanho da opção.
+                    const tamanho = foto
+                        ? String(foto.tamanho ?? '').trim()
+                        : (produto.sizes || []).join(', ');
+
+                    const tamanhoElemento =
+                        card.querySelector('.tamanho-foto');
+
+                    if (tamanhoElemento) {
+                        tamanhoElemento.textContent =
+                            tamanho || 'Não informado';
+                    }
+
+                    // Atualiza o estoque da opção.
+                    const estoque = Math.max(
+                        0,
+                        Number(foto ? foto.estoque : produto.stock) || 0
+                    );
+
+                    const estoqueElemento =
+                        card.querySelector('.estoque-foto');
+
+                    if (estoqueElemento) {
+                        estoqueElemento.textContent = estoque === 0
+                            ? 'Esgotado'
+                            : `Estoque: ${estoque} ${
+                                estoque === 1 ? 'unidade' : 'unidades'
+                            }`;
+
+                        estoqueElemento.style.color = estoque === 0
+                            ? '#c62828'
+                            : estoque === 1
+                                ? '#a65f00'
+                                : '#008542';
+                    }
+
+                    // Atualiza o botão de adicionar.
+                    const botao = card.querySelector('[data-add-cart]');
+
+                    if (botao) {
+                        botao.disabled = estoque === 0;
+
+                        botao.className = estoque === 1
+                            ? 'add-cart-btn unique'
+                            : 'add-cart-btn';
+
+                        botao.textContent = estoque === 0
+                            ? 'Esgotado'
+                            : estoque === 1
+                                ? 'Reservar última peça'
+                                : 'Adicionar';
+
+                        botao.style.opacity =
+                            estoque === 0 ? '0.5' : '';
+
+                        botao.style.cursor = estoque === 0
+                            ? 'not-allowed'
+                            : '';
+                    }
+                };
+
+                // Preenche os dados e restaura a seleção de cada card.
+                grid.querySelectorAll('.product-card').forEach(card => {
+                    const productId = card.dataset.productId;
+
+                    atualizarOpcaoDoCard(
+                        card,
+                        window.fotoSelecionada[productId] ?? 0
+                    );
+                });
+
+                // Adiciona a opção selecionada à sacola.
                 grid.querySelectorAll('[data-add-cart]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const productId = btn.dataset.addCart;
-        const fotoIndex = window.fotoSelecionada?.[productId] || 0;
-        this.handleAddToCart(productId, fotoIndex);
-    });
-});
-grid.querySelectorAll('.miniatura-foto').forEach(mini => {
-    mini.addEventListener('click', (e) => {
-        e.stopPropagation();
+                    btn.addEventListener('click', event => {
+                        event.stopPropagation();
 
-        const productId = mini.dataset.produto;
-        const fotoIndex = Number(mini.dataset.foto);
+                        const productId = btn.dataset.addCart;
+                        const fotoIndex =
+                            window.fotoSelecionada[productId] ?? 0;
 
-        const principal = document.getElementById(`fotoPrincipal-${productId}`);
-        const produto = ProductService.getById(productId);
+                        this.handleAddToCart(productId, fotoIndex);
+                    });
+                });
 
-        if (principal && produto && produto.fotos && produto.fotos[fotoIndex]) {
-            principal.src = produto.fotos[fotoIndex].url;
-        }
+                // Troca foto, tamanho e estoque.
+                grid.querySelectorAll('.miniatura-foto').forEach(mini => {
+                    mini.addEventListener('click', event => {
+                        event.stopPropagation();
 
-        grid.querySelectorAll(`.miniatura-foto[data-produto="${productId}"]`).forEach(item => {
-            item.style.border = '2px solid transparent';
-        });
+                        const card = mini.closest('.product-card');
 
-        mini.style.border = '2px solid #00a651';
+                        if (!card) return;
 
-        window.fotoSelecionada = window.fotoSelecionada || {};
-        window.fotoSelecionada[productId] = fotoIndex;
-    });
-});
+                        atualizarOpcaoDoCard(
+                            card,
+                            Number(mini.dataset.foto)
+                        );
+                    });
+                });
+
+                // Abre os detalhes do produto.
                 grid.querySelectorAll('.product-card').forEach(card => {
                     card.addEventListener('click', () => {
-                      const productId = card.dataset.productId;
+                        const productId = card.dataset.productId;
                         this.showProductModal(productId);
                     });
                 });
@@ -4483,6 +4602,85 @@ function showUsuariosSection() {
   }
 }
 
+
+async function editarDadosUsuario(botao, usuarioId) {
+  const linha = botao.closest('tr');
+
+  if (!linha) return;
+
+  const nomeAtual = linha.cells[0].textContent.trim();
+  const emailAtual = linha.cells[1].textContent.trim();
+
+  const nomeInformado = prompt('Nome do usuário:', nomeAtual);
+  if (nomeInformado === null) return;
+
+  const emailInformado = prompt('E-mail do usuário:', emailAtual);
+  if (emailInformado === null) return;
+
+  const nome = nomeInformado.trim();
+  const email = emailInformado.trim();
+
+  if (!nome || !email) {
+    alert('Preencha nome e e-mail.');
+    return;
+  }
+
+  if (nome === nomeAtual && email === emailAtual) {
+    return;
+  }
+
+  if (!confirm(
+    `Salvar as alterações?\n\nNome: ${nome}\nE-mail: ${email}`
+  )) {
+    return;
+  }
+
+  const textoOriginal = botao.textContent;
+  botao.disabled = true;
+  botao.textContent = 'Salvando...';
+
+  try {
+    const resposta = await fetch(
+      `https://pingo-de-gente.onrender.com/api/auth/users/${encodeURIComponent(usuarioId)}/dados`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getToken()}`
+        },
+        body: JSON.stringify({ nome, email })
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok || !dados.ok) {
+      alert(dados.message || 'Não foi possível salvar os dados.');
+      return;
+    }
+
+    alert('Dados atualizados com sucesso!');
+    await carregarUsuarios();
+  } catch (error) {
+    console.error('Erro ao editar usuário:', error);
+    alert('Não foi possível conectar ao servidor para salvar.');
+  } finally {
+    botao.disabled = false;
+    botao.textContent = textoOriginal;
+  }
+}
+//retirar
+function escaparHtml(valor) {
+  return String(valor ?? '').replace(/[&<>"']/g, caractere => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[caractere]));
+}
+//retirar
+
 async function carregarUsuarios() {
   const tbody = document.getElementById('usuariosTableBody');
   const token = getToken();
@@ -4510,9 +4708,10 @@ async function carregarUsuarios() {
 
     tbody.innerHTML = dados.users.map(usuario => `
       <tr>
-        <td>${usuario.nome}</td>
-        <td>${usuario.email}</td>
-        <td>${usuario.role}</td>
+        <td>${escaparHtml(usuario.nome)}</td>
+        <td>${escaparHtml(usuario.email)}</td>
+        <td>${escaparHtml(usuario.role)}</td>
+
         <td>
           <select id="perfil-${usuario.id}">
             <option value="cliente" ${usuario.role === 'cliente' ? 'selected' : ''}>Cliente</option>
@@ -4520,9 +4719,28 @@ async function carregarUsuarios() {
             <option value="admin" ${usuario.role === 'admin' ? 'selected' : ''}>Administrador</option>
           </select>
         </td>
-        <td>
-         <button onclick="salvarPerfil('${usuario.id}')">Salvar</button>
-        </td>
+      <td>
+  <button
+    type="button"
+    onclick="editarDadosUsuario(this, '${usuario.id}')"  >    Editar dados
+  </button>
+
+  <button
+    type="button"  onclick="salvarPerfil('${usuario.id}')"  >    Salvar perfil
+  </button>
+</td>
+<td>
+  <button    type="button"    onclick="editarDadosUsuario(this, '${usuario.id}')"  >    Editar dados
+  </button>
+
+  <button
+    type="button"
+    onclick="salvarPerfil('${usuario.id}')"
+  >
+    Salvar perfil
+  </button>
+</td>
+
       </tr>
     `).join('');
 
