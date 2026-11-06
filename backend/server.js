@@ -447,6 +447,69 @@ app.delete('/api/produtos/:id', verificarAdmin, async (req, res) => {
     });
   }
 });
+app.post('/api/reservas/baixa-estoque', async (req, res) => {
+    const { itens } = req.body;
+
+    if (!Array.isArray(itens) || itens.length === 0) {
+        return res.status(400).json({
+            ok: false,
+            erro: 'Nenhum item informado.'
+        });
+    }
+
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        for (const item of itens) {
+            const productId = Number(item.productId);
+            const tamanho = item.tamanho || '';
+            const quantidade = Number(item.quantidade);
+
+            if (!productId || !quantidade || quantidade <= 0) {
+                throw new Error('Item inválido na reserva.');
+            }
+
+            const resultado = await client.query(
+                `UPDATE product_photos
+                 SET estoque = estoque - $1
+                 WHERE product_id = $2
+                   AND tamanho = $3
+                   AND estoque >= $1
+                 RETURNING id, estoque`,
+                [quantidade, productId, tamanho]
+            );
+
+            if (resultado.rowCount === 0) {
+                throw new Error(
+                    'Estoque insuficiente para o produto ' +
+                    productId +
+                    ' no tamanho ' +
+                    tamanho
+                );
+            }
+        }
+
+        await client.query('COMMIT');
+
+        res.json({
+            ok: true,
+            message: 'Estoque atualizado com sucesso.'
+        });
+    } catch (error) {
+        await client.query('ROLLBACK');
+
+        console.error('Erro ao dar baixa no estoque:', error.message);
+
+        res.status(400).json({
+            ok: false,
+            erro: error.message
+        });
+    } finally {
+        client.release();
+    }
+});
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, '0.0.0.0', () => {
