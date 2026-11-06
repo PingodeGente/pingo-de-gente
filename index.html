@@ -3903,7 +3903,17 @@ try {
         }
     );
 
-    const dadosEstoque = await respostaEstoque.json();
+   const textoResposta = await respostaEstoque.text();
+
+console.log('RESPOSTA DA API DE ESTOQUE:', textoResposta);
+
+let dadosEstoque = {};
+
+try {
+    dadosEstoque = JSON.parse(textoResposta);
+} catch (e) {
+    dadosEstoque = { ok: false, erro: textoResposta };
+}
 
     if (!respostaEstoque.ok || !dadosEstoque.ok) {
         throw new Error(dadosEstoque.erro || 'Erro ao atualizar estoque.');
