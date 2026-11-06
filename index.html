@@ -3950,7 +3950,7 @@ try {
 
               if (orderId) { message = `📋 *Pedido:* ${orderId}\n\n` + message;}
 
-                              const phone = '5516991119843';
+const phone = '5516991119843';
 
 const abrirWhatsAppComPagamento = (formaPagamento) => {
     let mensagemFinal =
@@ -3980,7 +3980,6 @@ const abrirWhatsAppComPagamento = (formaPagamento) => {
         '_blank',
         'noopener,noreferrer'
     );
-};
 
     CartService.clear();
     UI.updateCartBadge();
@@ -3993,7 +3992,6 @@ const abrirWhatsAppComPagamento = (formaPagamento) => {
         window.location.reload();
     }, 500);
 };
-
 this.showModal(
     'Forma de pagamento',
     'Como você pretende pagar pela reserva?',
