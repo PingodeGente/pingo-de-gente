@@ -3879,11 +3879,9 @@ if (AuthService.firebase) {
 
 // Baixa de estoque no banco SQL - sempre executa
 // Baixa de estoque no banco SQL - sempre executa
-console.log('ITENS ENVIADOS PARA ESTOQUE:', items.map(item => ({
-    productId: item.id,
-    tamanho: item.selectedSize,
-    quantidade: item.qty
-})));
+console.log('PRODUCT ID:', item.id);
+console.log('TAMANHO:', item.selectedSize);
+console.log('QUANTIDADE:', item.qty);
 
 try {
     const respostaEstoque = await fetch(
