@@ -3924,8 +3924,8 @@ const nome = nomeDoPerfil || nomeDoCadastro;
         '_blank',
         'noopener,noreferrer'
     );
-
-    CartService.clearCart();
+   
+    CartService.clear();
     UI.updateCartBadge();
 
     if (typeof UI.renderCart === 'function') {
