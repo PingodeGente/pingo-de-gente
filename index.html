@@ -2502,7 +2502,7 @@ foto: produto.fotos && produto.fotos.length > 0 ? produto.fotos[0].url : null,
     }
 },
 
-          async createOrder(orderData) {
+       async createOrder(orderData) {
     if (!this.db) return null;
 
     try {
@@ -2520,11 +2520,8 @@ foto: produto.fotos && produto.fotos.length > 0 ? produto.fotos[0].url : null,
         };
 
         await this.db.runTransaction(async (transaction) => {
-            const productRefs = [];
-            const productDocs = [];
-
             for (const item of orderData.items) {
-                const productRef = this.db.collection('products').doc(item.id);
+                const productRef = this.db.collection('product_photos').doc(item.id);
                 const productDoc = await transaction.get(productRef);
 
                 if (!productDoc.exists) {
@@ -2532,7 +2529,7 @@ foto: produto.fotos && produto.fotos.length > 0 ? produto.fotos[0].url : null,
                 }
 
                 const product = productDoc.data();
-                const estoqueAtual = Number(product.stock ?? product.estoque ?? 0);
+                const estoqueAtual = Number(product.estoque ?? 0);
                 const quantidade = Number(item.qty);
 
                 if (estoqueAtual < quantidade) {
@@ -2542,12 +2539,8 @@ foto: produto.fotos && produto.fotos.length > 0 ? produto.fotos[0].url : null,
                 const novoEstoque = estoqueAtual - quantidade;
 
                 transaction.update(productRef, {
-                    stock: novoEstoque,
                     estoque: novoEstoque
                 });
-
-                productRefs.push(productRef);
-                productDocs.push(product);
             }
 
             transaction.set(orderRef, order);
