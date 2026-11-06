@@ -463,11 +463,11 @@ app.post('/api/reservas/baixa-estoque', async (req, res) => {
         await client.query('BEGIN');
 
         for (const item of itens) {
-            const productId = Number(item.productId);
+            const productId = item.productId;
             const tamanho = item.tamanho || '';
             const quantidade = Number(item.quantidade);
 
-            if (!productId || !quantidade || quantidade <= 0) {
+            if (!productId || typeof productId !== 'string' || !quantidade || quantidade <= 0) {
                 throw new Error('Item inválido na reserva.');
             }
 
@@ -510,7 +510,6 @@ app.post('/api/reservas/baixa-estoque', async (req, res) => {
         client.release();
     }
 });
-
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, '0.0.0.0', () => {
