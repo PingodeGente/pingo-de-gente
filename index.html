@@ -3952,11 +3952,22 @@ try {
 
                               const phone = '5516991119843';
 
- const abrirWhatsAppComPagamento = (formaPagamento) => {
-    const mensagemFinal =
+const abrirWhatsAppComPagamento = (formaPagamento) => {
+    let mensagemFinal =
         message +
         '\n\n💳 *Forma de pagamento:* ' +
         formaPagamento;
+
+    if (formaPagamento === 'Pix') {
+        const chavePix = '16991371859';
+        const valorTotal = total.toFixed(2).replace('.', ',');
+
+        mensagemFinal +=
+            '\n\n📌 *Dados para pagamento via Pix:*' +
+            '\nChave Pix: ' + chavePix +
+            '\nValor: R$ ' + valorTotal +
+            '\nCódigo Pix: PIX-' + chavePix + '-' + total.toFixed(2);
+    }
 
     const whatsappUrl =
         'https://api.whatsapp.com/send/?phone=' +
@@ -3969,6 +3980,7 @@ try {
         '_blank',
         'noopener,noreferrer'
     );
+};
 
     CartService.clear();
     UI.updateCartBadge();
