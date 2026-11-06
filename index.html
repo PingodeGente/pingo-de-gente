@@ -3878,6 +3878,13 @@ if (AuthService.firebase) {
 }
 
 // Baixa de estoque no banco SQL - sempre executa
+// Baixa de estoque no banco SQL - sempre executa
+console.log('ITENS ENVIADOS PARA ESTOQUE:', items.map(item => ({
+    productId: item.id,
+    tamanho: item.selectedSize,
+    quantidade: item.qty
+})));
+
 try {
     const respostaEstoque = await fetch(
         'https://pingo-de-gente.onrender.com/api/reservas/baixa-estoque',
@@ -3909,7 +3916,6 @@ try {
         'error'
     );
 }
-
 
                 // Monta mensagem WhatsApp
                 let message = ` *RESERVA - PINGO DE GENTE*\n\n`;
