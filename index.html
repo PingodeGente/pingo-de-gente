@@ -2502,9 +2502,8 @@ foto: produto.fotos && produto.fotos.length > 0 ? produto.fotos[0].url : null,
     }
 },
 
-       async createOrder(orderData) {
+   async createOrder(orderData) {
     if (!this.db) return null;
-
     try {
         const user = this.auth.currentUser;
         if (!user) return null;
@@ -2519,40 +2518,13 @@ foto: produto.fotos && produto.fotos.length > 0 ? produto.fotos[0].url : null,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        await this.db.runTransaction(async (transaction) => {
-            for (const item of orderData.items) {
-                const productRef = this.db.collection('product_photos').doc(item.id);
-                const productDoc = await transaction.get(productRef);
-
-                if (!productDoc.exists) {
-                    throw new Error('Produto não encontrado: ' + item.name);
-                }
-
-                const product = productDoc.data();
-                const estoqueAtual = Number(product.estoque ?? 0);
-                const quantidade = Number(item.qty);
-
-                if (estoqueAtual < quantidade) {
-                    throw new Error('Estoque insuficiente para: ' + item.name);
-                }
-
-                const novoEstoque = estoqueAtual - quantidade;
-
-                transaction.update(productRef, {
-                    estoque: novoEstoque
-                });
-            }
-
-            transaction.set(orderRef, order);
-        });
-
+        await orderRef.set(order);
         return orderRef.id;
     } catch (error) {
         console.error('Erro ao criar pedido:', error.message);
         return null;
     }
 },
-
             async loadNotices() {
                 if (!this.db) return null;
                 try {
@@ -3901,6 +3873,37 @@ const nome = nomeDoPerfil || nomeDoCadastro;
                         this.showToast('⚠️ Erro ao salvar pedido. Tente novamente.', 'error');
                         return;
                     }
+                    try {
+    const respostaEstoque = await fetch(
+        'https://pingo-de-gente.onrender.com/api/reservas/baixa-estoque',
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                itens: items.map(item => ({
+                    productId: item.id,
+                    tamanho: item.selectedSize || '',
+                    quantidade: item.qty
+                }))
+            })
+        }
+    );
+
+    const dadosEstoque = await respostaEstoque.json();
+
+    if (!respostaEstoque.ok || !dadosEstoque.ok) {
+        throw new Error(dadosEstoque.erro || 'Erro ao atualizar estoque.');
+    }
+} catch (erroEstoque) {
+    console.error('Erro ao atualizar estoque:', erroEstoque.message);
+
+    this.showToast(
+        '⚠️ Pedido salvo, mas houve erro ao atualizar o estoque.',
+        'error'
+    );
+}
                 }
 
                 // Monta mensagem WhatsApp
