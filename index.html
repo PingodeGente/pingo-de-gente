@@ -3953,20 +3953,24 @@ try {
 const phone = '5516991119843';
 
 const abrirWhatsAppComPagamento = (formaPagamento) => {
+    console.log('SACOLA NO PIX:', JSON.stringify(carrinhoAtual));
+
     let mensagemFinal =
         message +
         '\n\n💳 *Forma de pagamento:* ' +
         formaPagamento;
 
-    let total = 0;
-
-    if (typeof carrinhoAtual !== 'undefined' && Array.isArray(carrinhoAtual)) {
-        carrinhoAtual.forEach(item => {
-            total += Number(item.price) * Number(item.qty);
-        });
-    }
-
     if (formaPagamento === 'Pix') {
+        let total = 0;
+
+        const totalNaMensagem = message.match(/Total:\s*R\$\s*([\d.,]+)/i);
+
+        if (totalNaMensagem) {
+            total = parseFloat(
+                totalNaMensagem[1].replace(/\./g, '').replace(',', '.')
+            );
+        }
+
         const chavePix = '16991371859';
         const valorTotal = total.toFixed(2).replace('.', ',');
 
@@ -3977,8 +3981,7 @@ const abrirWhatsAppComPagamento = (formaPagamento) => {
             '\nCódigo Pix: PIX-' + chavePix + '-' + total.toFixed(2) +
             '\n\n✅ *Favor enviar o comprovante do pagamento.*';
     }
-
-    const whatsappUrl =
+const whatsappUrl =
         'https://api.whatsapp.com/send/?phone=' +
         phone +
         '&text=' +
