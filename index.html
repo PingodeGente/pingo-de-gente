@@ -3852,28 +3852,33 @@ const nome = nomeDoPerfil || nomeDoCadastro;
                 const totalSaved = CartService.getTotalSaved();
 
                 // Tenta salvar no Firestore
-                let orderId = null;
-                if (AuthService.firebase) {
-                    orderId = await FirestoreService.createOrder({
-                        items: items.map(item => ({
-                            id: item.id,
-                            code: item.code,
-                            name: item.name,
-                            size: item.selectedSize,
-                            qty: item.qty,
-                            price: item.price
-                        })),
-                        totalItems,
-                        totalValue,
-                        totalSaved,
-                        customer: { nome, telefone, rua, numero, bairro, cidade }
-                    });
+             // Tenta salvar no Firestore
+let orderId = null;
 
-                    if (!orderId) {
-                        this.showToast('⚠️ Erro ao salvar pedido. Tente novamente.', 'error');
-                        return;
-                    }
-                    try {
+if (AuthService.firebase) {
+    orderId = await FirestoreService.createOrder({
+        items: items.map(item => ({
+            id: item.id,
+            code: item.code,
+            name: item.name,
+            size: item.selectedSize,
+            qty: item.qty,
+            price: item.price
+        })),
+        totalItems,
+        totalValue,
+        totalSaved,
+        customer: { nome, telefone, rua, numero, bairro, cidade }
+    });
+
+    if (!orderId) {
+        this.showToast('⚠️ Erro ao salvar pedido. Tente novamente.', 'error');
+        return;
+    }
+}
+
+// Baixa de estoque no banco SQL - sempre executa
+try {
     const respostaEstoque = await fetch(
         'https://pingo-de-gente.onrender.com/api/reservas/baixa-estoque',
         {
@@ -3904,7 +3909,7 @@ const nome = nomeDoPerfil || nomeDoCadastro;
         'error'
     );
 }
-                }
+
 
                 // Monta mensagem WhatsApp
                 let message = ` *RESERVA - PINGO DE GENTE*\n\n`;
