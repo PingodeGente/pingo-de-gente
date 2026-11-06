@@ -2502,30 +2502,63 @@ foto: produto.fotos && produto.fotos.length > 0 ? produto.fotos[0].url : null,
     }
 },
 
-            async createOrder(orderData) {
-                if (!this.db) return null;
-                try {
-                    const user = this.auth.currentUser;
-                    if (!user) return null;
+          async createOrder(orderData) {
+    if (!this.db) return null;
 
-                    // Usar transação para garantir integridade do estoque
-                    const orderRef = this.db.collection('orders').doc();
-                    
-                    const order = {
-                        ...orderData,
-                        userId: user.uid,
-                        userEmail: user.email,
-                        status: 'pendente',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    };
+    try {
+        const user = this.auth.currentUser;
+        if (!user) return null;
 
-                    await orderRef.set(order);
-                    return orderRef.id;
-                } catch (error) {
-                    console.error('Erro ao criar pedido:', error.message);
-                    return null;
+        const orderRef = this.db.collection('orders').doc();
+
+        const order = {
+            ...orderData,
+            userId: user.uid,
+            userEmail: user.email,
+            status: 'pendente',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await this.db.runTransaction(async (transaction) => {
+            const productRefs = [];
+            const productDocs = [];
+
+            for (const item of orderData.items) {
+                const productRef = this.db.collection('products').doc(item.id);
+                const productDoc = await transaction.get(productRef);
+
+                if (!productDoc.exists) {
+                    throw new Error('Produto não encontrado: ' + item.name);
                 }
-            },
+
+                const product = productDoc.data();
+                const estoqueAtual = Number(product.stock ?? product.estoque ?? 0);
+                const quantidade = Number(item.qty);
+
+                if (estoqueAtual < quantidade) {
+                    throw new Error('Estoque insuficiente para: ' + item.name);
+                }
+
+                const novoEstoque = estoqueAtual - quantidade;
+
+                transaction.update(productRef, {
+                    stock: novoEstoque,
+                    estoque: novoEstoque
+                });
+
+                productRefs.push(productRef);
+                productDocs.push(product);
+            }
+
+            transaction.set(orderRef, order);
+        });
+
+        return orderRef.id;
+    } catch (error) {
+        console.error('Erro ao criar pedido:', error.message);
+        return null;
+    }
+},
 
             async loadNotices() {
                 if (!this.db) return null;
