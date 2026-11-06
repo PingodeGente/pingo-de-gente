@@ -3981,7 +3981,8 @@ const abrirWhatsAppComPagamento = (formaPagamento) => {
             '\nCódigo Pix: PIX-' + chavePix + '-' + total.toFixed(2) +
             '\n\n✅ *Favor enviar o comprovante do pagamento.*';
     }
-const whatsappUrl =
+
+    const whatsappUrl =
         'https://api.whatsapp.com/send/?phone=' +
         phone +
         '&text=' +
