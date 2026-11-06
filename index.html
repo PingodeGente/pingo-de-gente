@@ -3907,7 +3907,7 @@ const nome = nomeDoPerfil || nomeDoCadastro;
 
                               const phone = '5516991119843';
 
-  const abrirWhatsAppComPagamento = (formaPagamento) => {
+ const abrirWhatsAppComPagamento = (formaPagamento) => {
     const mensagemFinal =
         message +
         '\n\n💳 *Forma de pagamento:* ' +
@@ -3924,15 +3924,13 @@ const nome = nomeDoPerfil || nomeDoCadastro;
         '_blank',
         'noopener,noreferrer'
     );
-   
+
     CartService.clear();
     UI.updateCartBadge();
 
     if (typeof UI.renderCart === 'function') {
         UI.renderCart();
     }
-
-    Navigation.navigateTo('catalogo');
 
     setTimeout(() => {
         window.location.reload();
