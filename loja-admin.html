@@ -724,7 +724,7 @@ function editarProduto(id) {
   fotosProduto = Array.isArray(produto.fotos)
   ? produto.fotos.map(foto => ({
       imagem: foto.url || foto.imagem_base64,
-      estoque: Number(foto.estoque) || 1,
+     estoque: foto.estoque === null || foto.estoque === undefined ? '' : Number(foto.estoque),
       tamanho: foto.tamanho || ''
     }))
   : [];
